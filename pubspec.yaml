@@ -39,6 +39,10 @@ dependencies:
   flutter_bloc: ^8.1.2
   connectivity_plus: ^4.0.2
   syncfusion_flutter_datagrid: ^21.1.41
+  dio: ^5.4.0
+  top_snackbar_flutter: ^3.1.0
+  flutter_easyloading: ^3.0.5
+  syncfusion_flutter_charts: ^21.2.10
 
 dev_dependencies:
   flutter_test:
