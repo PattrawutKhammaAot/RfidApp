@@ -146,12 +146,13 @@ class _ReportScreenState extends State<ReportScreen> {
                       tooltipBehavior: TooltipBehavior(enable: true),
                       series: <PieSeries<ChartData, String>>[
                         PieSeries<ChartData, String>(
-                          dataSource: chartData,
-                          xValueMapper: (ChartData data, _) => data.x,
-                          yValueMapper: (ChartData data, _) => data.y.toInt(),
-                          radius: '100%',
-                          explode: true,
-                        ),
+                            dataSource: chartData,
+                            xValueMapper: (ChartData data, _) => data.x,
+                            yValueMapper: (ChartData data, _) => data.y.toInt(),
+                            radius: '100%',
+                            explode: true,
+                            dataLabelSettings:
+                                DataLabelSettings(isVisible: true)),
                       ],
                     )
                   : CircularProgressIndicator(),
@@ -207,9 +208,9 @@ class _ReportScreenState extends State<ReportScreen> {
                               child: CircularPercentIndicator(
                                 radius: 45.0,
                                 lineWidth: 8.0,
-                                percent: totalScanModel.totalMaster! / 100,
+                                percent: 1.0,
                                 center: new Text(
-                                  " Master \n ${totalScanModel.totalMaster}",
+                                  " Master \n ${totalScanModel.totalMaster} EA",
                                   textAlign: TextAlign.center,
                                 ),
                                 progressColor: blueColor,
@@ -240,9 +241,10 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalFound! / 100,
+                              percent: totalScanModel.totalFound! /
+                                  totalScanModel.totalMaster!,
                               center: new Text(
-                                " Found  \n ${totalScanModel.totalFound}%",
+                                " Found  \n ${((totalScanModel.totalFound! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalFound} EA",
                                 textAlign: TextAlign.center,
                               ),
                               progressColor: pinkPaletteColor,
@@ -274,9 +276,10 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalLoss! / 100,
+                              percent: totalScanModel.totalLoss! /
+                                  totalScanModel.totalMaster!,
                               center: new Text(
-                                " Loss \n ${totalScanModel.totalLoss}%",
+                                " Loss \n ${((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalLoss} EA",
                                 textAlign: TextAlign.center,
                               ),
                               progressColor: pinkColor,
