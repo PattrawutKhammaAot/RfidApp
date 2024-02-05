@@ -85,6 +85,26 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
         emit(state.copyWith(status: FetchStatus.failed, message: e.toString()));
       }
     });
+    on<ImportRfidCodeEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(status: FetchStatus.importLoading));
+
+        var responseData =
+            await importRfidFetching(event.rfidItemListToJsonModel);
+        if (responseData.statusCode ?? false) {
+          emit(state.copyWith(
+              status: FetchStatus.importFinish, message: responseData.message));
+        } else {
+          emit(state.copyWith(
+              status: FetchStatus.importFailed, message: responseData.message));
+        }
+      } catch (e, s) {
+        print(e);
+        print(s);
+        emit(state.copyWith(
+            status: FetchStatus.importFailed, message: e.toString()));
+      }
+    });
   }
 
   Future<RfidItemList> getRfidFetch() async {
@@ -137,6 +157,28 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
 
       print(responese.data);
       TotalScanModel post = TotalScanModel.fromJson(responese.data);
+      return post;
+    } catch (e, s) {
+      print("Exception occured: $e StackTrace: $s");
+      throw Exception();
+    }
+  }
+
+  Future<DefaultResponse> importRfidFetching(
+      List<ImportRfidCodeModel> dto) async {
+    try {
+      List<Map<String, dynamic>> jsonData =
+          dto.map((item) => item.toJson()).toList();
+      Response responese = await dio.post(
+        ApiConfig.IMPORT_RFID_TAG,
+        data: jsonData,
+        options: Options(
+            headers: ApiConfig.HEADER(),
+            sendTimeout: Duration(seconds: 60),
+            receiveTimeout: Duration(seconds: 60)),
+      );
+
+      DefaultResponse post = DefaultResponse.fromJson(responese.data);
       return post;
     } catch (e, s) {
       print("Exception occured: $e StackTrace: $s");

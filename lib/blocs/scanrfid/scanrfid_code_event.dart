@@ -14,7 +14,7 @@ class GetRfidItemListEvent extends ScanrfidCodeEvent {
 }
 
 class ImportRfidCodeEvent extends ScanrfidCodeEvent {
-  final ImportRfidCodeModel rfidItemListToJsonModel;
+  final List<ImportRfidCodeModel> rfidItemListToJsonModel;
   const ImportRfidCodeEvent(this.rfidItemListToJsonModel);
   @override
   List<Object> get props => [rfidItemListToJsonModel];

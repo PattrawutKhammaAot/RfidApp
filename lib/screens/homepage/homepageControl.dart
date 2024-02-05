@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/config/appConstants.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
@@ -45,6 +50,21 @@ class _HomePageControlState extends State<HomePageControl> {
           'RFID APP',
           style: TextStyle(color: whiteColor),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: GestureDetector(
+              onTap: () async {
+                await exportTemplate();
+              },
+              child: Icon(
+                Icons.info,
+                color: whiteColor,
+                size: 30,
+              ),
+            ),
+          )
+        ],
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -65,5 +85,32 @@ class _HomePageControlState extends State<HomePageControl> {
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  Future exportTemplate() async {
+    var data = 'EX${txtPattern}\n';
+    data += 'EX${txtPattern}\n';
+
+    await exportTxt(data: data, fileName: "RFID_Template");
+    EasyLoading.showSuccess("Export Template Success");
+  }
+
+  Future<void> exportTxt({String? data, String? fileName}) async {
+    if (await Permission.storage.request().isGranted) {
+      var directory = await AndroidPathProvider.downloadsPath;
+
+      var selectDirectory = directory;
+      var directoryExists = await Directory(selectDirectory).exists();
+      if (!directoryExists) {
+        await Directory(selectDirectory).create(recursive: true);
+      }
+
+      ///storage/emulated/0/Download
+      var filename = fileName;
+      var pathFile = '$selectDirectory/$filename.txt';
+
+      var file = File(pathFile);
+      await file.writeAsString(data!);
+    }
   }
 }

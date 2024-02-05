@@ -15,7 +15,10 @@ enum FetchStatus {
   saved,
   sendSuccess,
   sendFailed,
-  removeSuccess
+  removeSuccess,
+  importLoading,
+  importFinish,
+  importFailed
 }
 
 class App extends StatefulWidget {
