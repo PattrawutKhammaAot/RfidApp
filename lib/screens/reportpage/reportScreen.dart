@@ -69,9 +69,9 @@ class _ReportScreenState extends State<ReportScreen> {
 
       print("test Send ${jsonEncode(_itemImport)}");
 
-      BlocProvider.of<ScanrfidCodeBloc>(context).add(
-        ImportRfidCodeEvent(_itemImport),
-      );
+      // BlocProvider.of<ScanrfidCodeBloc>(context).add(
+      //   ImportRfidCodeEvent(_itemImport),
+      // );
     }
   }
 
@@ -99,6 +99,13 @@ class _ReportScreenState extends State<ReportScreen> {
                 chartData.add(ChartData(
                     'Found',
                     double.parse(totalScanModel.totalFound.toString()),
+                    Colors.green[300]));
+
+                chartData.add(ChartData(
+                    'Not Scan',
+                    double.parse((totalScanModel.totalMaster! -
+                            totalScanModel.totalFound!)
+                        .toString()),
                     Colors.green[300]));
 
                 setState(() {});
@@ -177,7 +184,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   ? Expanded(
                       child: GridView.count(
                         primary: false,
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(10),
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                         crossAxisCount: 3,
@@ -252,6 +259,42 @@ class _ReportScreenState extends State<ReportScreen> {
                           ),
                           Container(
                             padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    offset: Offset(
+                                      1.0,
+                                      1.0,
+                                    ),
+                                    blurRadius: 5.0,
+                                    spreadRadius: 1.0,
+                                  ), //BoxShadow
+                                  BoxShadow(
+                                    color: Colors.white,
+                                    offset: Offset(0.0, 0.0),
+                                    blurRadius: 0.0,
+                                    spreadRadius: 0.0,
+                                  ),
+                                ],
+                                color: whiteColor,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12))),
+                            child: CircularPercentIndicator(
+                              radius: 45.0,
+                              lineWidth: 8.0,
+                              percent: (totalScanModel.totalMaster! -
+                                      totalScanModel.totalFound!) /
+                                  totalScanModel.totalMaster!,
+                              center: new Text(
+                                "Not Scan  \n ${(((totalScanModel.totalMaster! - totalScanModel.totalFound!) / totalScanModel.totalMaster!) * 100).toInt()}% \n ${(totalScanModel.totalMaster! - totalScanModel.totalFound!)} EA",
+                                textAlign: TextAlign.center,
+                              ),
+                              progressColor: pinkPaletteColor1,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
                             decoration: const BoxDecoration(
                                 boxShadow: [
                                   BoxShadow(
@@ -276,12 +319,20 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalLoss! /
-                                  totalScanModel.totalMaster!,
-                              center: new Text(
-                                " Loss \n ${((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalLoss} EA",
-                                textAlign: TextAlign.center,
-                              ),
+                              percent: totalScanModel.totalLoss != null
+                                  ? totalScanModel.totalLoss! >
+                                          totalScanModel.totalMaster!
+                                      ? 1.0
+                                      : totalScanModel.totalLoss! /
+                                          totalScanModel.totalMaster!
+                                  : 0.0,
+                              center: totalScanModel.totalLoss! >
+                                      totalScanModel.totalMaster!
+                                  ? Text("${totalScanModel.totalLoss!} EA")
+                                  : Text(
+                                      " Loss \n ${((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalLoss} EA",
+                                      textAlign: TextAlign.center,
+                                    ),
                               progressColor: pinkColor,
                             ),
                           ),

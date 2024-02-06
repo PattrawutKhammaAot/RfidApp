@@ -88,8 +88,14 @@ class _HomePageControlState extends State<HomePageControl> {
   }
 
   Future exportTemplate() async {
-    var data = 'EX${txtPattern}\n';
-    data += 'EX${txtPattern}\n';
+    var data = 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|\n';
+    data += 'EX|';
 
     await exportTxt(data: data, fileName: "RFID_Template");
     EasyLoading.showSuccess("Export Template Success");

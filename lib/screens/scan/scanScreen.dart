@@ -30,6 +30,7 @@ class _ScanScreenState extends State<ScanScreen> {
   TextEditingController _controller = TextEditingController();
   List<tempRfidItemList> _addTable = [];
   FocusNode focusNode = FocusNode();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -37,6 +38,7 @@ class _ScanScreenState extends State<ScanScreen> {
       GetRfidItemListEvent(),
     );
     zincDataSource = ZincDataSource(process: []);
+
     // if (widget.receiveValue != null) {
     //   _addTable = widget.receiveValue!;
     //   zincDataSource = ZincDataSource(process: _addTable);
@@ -81,9 +83,11 @@ class _ScanScreenState extends State<ScanScreen> {
                               event.logicalKey == LogicalKeyboardKey.enter) {
                             onEventScan();
                             _controller.clear();
-                            await Future.delayed(Duration(milliseconds: 100));
+                            await Future.delayed(Duration(milliseconds: 200));
                             focusNode.requestFocus();
                             // Execute your desired actions here
+                          } else if (event is RawKeyDownEvent) {
+                            focusNode.requestFocus();
                           }
                         },
                         child: TextFormField(
@@ -202,6 +206,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future onEventScan() async {
+    print("${_controller.text}");
     if (_controller.text.isNotEmpty) {
       var result = itemList.itemListRfid!
           .where((element) =>

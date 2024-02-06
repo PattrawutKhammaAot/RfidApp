@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-String BASE_API_URL = "http://10.10.60.116/rfid_DEV/";
+String BASE_API_URL = "http://demo.oga.co.th/rfid_app/";
 
 class ApiConfig {
   static Map<String, dynamic> HEADER({String? Authorization}) {
