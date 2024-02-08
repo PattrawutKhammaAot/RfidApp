@@ -79,28 +79,33 @@ class _ScanScreenState extends State<ScanScreen> {
                       child: RawKeyboardListener(
                         focusNode: FocusNode(),
                         onKey: (RawKeyEvent event) async {
-                          if (event is RawKeyDownEvent &&
-                              event.logicalKey == LogicalKeyboardKey.enter) {
-                            onEventScan();
-                            _controller.clear();
-                            await Future.delayed(Duration(milliseconds: 200));
-                            focusNode.requestFocus();
-                            // Execute your desired actions here
-                          } else if (event is RawKeyDownEvent) {
-                            focusNode.requestFocus();
-                          }
+                          // if (event is RawKeyDownEvent &&
+                          //     event.logicalKey == LogicalKeyboardKey.enter) {
+                          //   onEventScan();
+                          //   await Future.delayed(Duration(milliseconds: 200));
+                          //   _controller.clear();
+                          //   await Future.delayed(Duration(milliseconds: 200));
+                          //   focusNode.requestFocus();
+                          //   // Execute your desired actions here
+                          // } else if (event is RawKeyDownEvent) {
+                          //   focusNode.requestFocus();
+                          // }
                         },
                         child: TextFormField(
-                          minLines: 1,
-                          maxLines: _controller.text.length > 30 ? 2 : 1,
                           controller: _controller,
                           focusNode: focusNode,
-                          // keyboardType: TextInputType.none,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Scan",
                             hintText: "Hint Text",
                           ),
+                          onFieldSubmitted: (value) async {
+                            onEventScan();
+                            await Future.delayed(Duration(milliseconds: 200));
+                            _controller.clear();
+                            await Future.delayed(Duration(milliseconds: 200));
+                            focusNode.requestFocus();
+                          },
                         ),
                       ),
                     ),
@@ -206,7 +211,6 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future onEventScan() async {
-    print("${_controller.text}");
     if (_controller.text.isNotEmpty) {
       var result = itemList.itemListRfid!
           .where((element) =>

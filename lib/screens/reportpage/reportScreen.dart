@@ -60,18 +60,21 @@ class _ReportScreenState extends State<ReportScreen> {
 
       final List<List<dynamic>> csvData =
           CsvToListConverter().convert(csvString, fieldDelimiter: '|');
+      csvData.forEach((row) {
+        row.forEach((col) {
+          ImportRfidCodeModel importModel = ImportRfidCodeModel(
+            rfidTag: col.toString(),
+            createDate: DateTime.now(),
+          );
 
-      _itemImport = csvData.map((col) {
-        return ImportRfidCodeModel(
-            rfidTag: col[0].toString(), createDate: DateTime.now());
-      }).toList();
+          _itemImport.add(importModel);
+        });
+      });
       setState(() {});
 
-      print("test Send ${jsonEncode(_itemImport)}");
-
-      // BlocProvider.of<ScanrfidCodeBloc>(context).add(
-      //   ImportRfidCodeEvent(_itemImport),
-      // );
+      BlocProvider.of<ScanrfidCodeBloc>(context).add(
+        ImportRfidCodeEvent(_itemImport),
+      );
     }
   }
 
@@ -159,7 +162,7 @@ class _ReportScreenState extends State<ReportScreen> {
                             radius: '100%',
                             explode: true,
                             dataLabelSettings:
-                                DataLabelSettings(isVisible: true)),
+                                DataLabelSettings(isVisible: false)),
                       ],
                     )
                   : CircularProgressIndicator(),
@@ -248,13 +251,15 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalFound! /
-                                  totalScanModel.totalMaster!,
+                              percent: totalScanModel.totalMaster != 0
+                                  ? totalScanModel.totalFound! /
+                                      totalScanModel.totalMaster!
+                                  : 1,
                               center: new Text(
-                                " Found  \n ${((totalScanModel.totalFound! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalFound} EA",
+                                " Found  \n ${totalScanModel.totalFound != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalFound! / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalFound} EA",
                                 textAlign: TextAlign.center,
                               ),
-                              progressColor: pinkPaletteColor,
+                              progressColor: pinkColor,
                             ),
                           ),
                           Container(
@@ -283,11 +288,13 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: (totalScanModel.totalMaster! -
-                                      totalScanModel.totalFound!) /
-                                  totalScanModel.totalMaster!,
+                              percent: totalScanModel.totalMaster != 0
+                                  ? (totalScanModel.totalMaster! -
+                                          totalScanModel.totalFound!) /
+                                      totalScanModel.totalMaster!
+                                  : 1,
                               center: new Text(
-                                "Not Scan  \n ${(((totalScanModel.totalMaster! - totalScanModel.totalFound!) / totalScanModel.totalMaster!) * 100).toInt()}% \n ${(totalScanModel.totalMaster! - totalScanModel.totalFound!)} EA",
+                                "Not Scan  \n ${totalScanModel.totalMaster != 0 && totalScanModel.totalFound != 0 ? (((totalScanModel.totalMaster! - totalScanModel.totalFound!) / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalMaster != 0 ? (totalScanModel.totalMaster! - totalScanModel.totalFound!) : "0"} EA",
                                 textAlign: TextAlign.center,
                               ),
                               progressColor: pinkPaletteColor1,
@@ -330,10 +337,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                       totalScanModel.totalMaster!
                                   ? Text("${totalScanModel.totalLoss!} EA")
                                   : Text(
-                                      " Loss \n ${((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt()}% \n ${totalScanModel.totalLoss} EA",
+                                      " Loss \n ${totalScanModel.totalLoss != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt() : "No data"}% \n ${totalScanModel.totalLoss} EA",
                                       textAlign: TextAlign.center,
                                     ),
-                              progressColor: pinkColor,
+                              progressColor: pinkPaletteColor,
                             ),
                           ),
                         ],

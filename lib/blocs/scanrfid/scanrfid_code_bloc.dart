@@ -166,6 +166,7 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
 
   Future<DefaultResponse> importRfidFetching(
       List<ImportRfidCodeModel> dto) async {
+    print("Test Import ${jsonEncode(dto)}");
     try {
       List<Map<String, dynamic>> jsonData =
           dto.map((item) => item.toJson()).toList();
