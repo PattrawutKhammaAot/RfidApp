@@ -88,13 +88,13 @@ class _HomePageControlState extends State<HomePageControl> {
   }
 
   Future exportTemplate() async {
-    var data = 'EX|\n';
-    data += 'EX|\n';
-    data += 'EX|\n';
-    data += 'EX|\n';
-    data += 'EX|\n';
-    data += 'EX|\n';
-    data += 'EX|\n';
+    var data = 'EX|';
+    data += 'EX|';
+    data += 'EX|';
+    data += 'EX|';
+    data += 'EX|';
+    data += 'EX|';
+    data += 'EX|';
     data += 'EX|';
 
     await exportTxt(data: data, fileName: "RFID_Template");

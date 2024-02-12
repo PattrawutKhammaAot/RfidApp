@@ -101,9 +101,9 @@ class _ScanScreenState extends State<ScanScreen> {
                           ),
                           onFieldSubmitted: (value) async {
                             onEventScan();
-                            await Future.delayed(Duration(milliseconds: 200));
+                            await Future.delayed(Duration(milliseconds: 500));
                             _controller.clear();
-                            await Future.delayed(Duration(milliseconds: 200));
+                            await Future.delayed(Duration(milliseconds: 500));
                             focusNode.requestFocus();
                           },
                         ),
