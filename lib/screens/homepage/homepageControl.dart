@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/screens/import_test/import_Test_Screen.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
@@ -41,7 +42,8 @@ class _HomePageControlState extends State<HomePageControl> {
       ),
       ReportScreen(
         receiveValue: sendValue,
-      )
+      ),
+      ImportTestScreen()
     ];
     return Scaffold(
       appBar: AppBar(
@@ -78,6 +80,10 @@ class _HomePageControlState extends State<HomePageControl> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Import',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Test',
           ),
         ],
         currentIndex: _selectedIndex,

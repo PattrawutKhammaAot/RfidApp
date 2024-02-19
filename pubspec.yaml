@@ -49,6 +49,7 @@ dependencies:
   path_provider: ^2.1.2
   permission_handler: ^11.2.0
   android_path_provider: ^0.3.0
+  nfc_manager: ^3.3.0
 
 dev_dependencies:
   flutter_test:

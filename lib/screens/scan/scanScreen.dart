@@ -30,6 +30,11 @@ class _ScanScreenState extends State<ScanScreen> {
   TextEditingController _controller = TextEditingController();
   List<tempRfidItemList> _addTable = [];
   FocusNode focusNode = FocusNode();
+  void _handleKeyDown(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      focusNode.unfocus();
+    }
+  }
 
   @override
   void initState() {
@@ -38,6 +43,9 @@ class _ScanScreenState extends State<ScanScreen> {
       GetRfidItemListEvent(),
     );
     zincDataSource = ZincDataSource(process: []);
+    // Future.delayed(Duration(milliseconds: 1000), () {
+    //   SystemChannels.textInput.invokeListMethod('TextInput.hide');
+    // });
 
     // if (widget.receiveValue != null) {
     //   _addTable = widget.receiveValue!;
@@ -58,13 +66,10 @@ class _ScanScreenState extends State<ScanScreen> {
             if (state.data != null) {
               setState(() {
                 itemList = state.data!;
-                focusNode.requestFocus();
               });
             }
           }
-          if (state.status == FetchStatus.failed) {
-            focusNode.requestFocus();
-          }
+          if (state.status == FetchStatus.failed) {}
         })
       ],
       child: Scaffold(
@@ -76,37 +81,30 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: RawKeyboardListener(
-                        focusNode: FocusNode(),
-                        onKey: (RawKeyEvent event) async {
-                          // if (event is RawKeyDownEvent &&
-                          //     event.logicalKey == LogicalKeyboardKey.enter) {
-                          //   onEventScan();
-                          //   await Future.delayed(Duration(milliseconds: 200));
-                          //   _controller.clear();
-                          //   await Future.delayed(Duration(milliseconds: 200));
-                          //   focusNode.requestFocus();
-                          //   // Execute your desired actions here
-                          // } else if (event is RawKeyDownEvent) {
-                          //   focusNode.requestFocus();
-                          // }
-                        },
-                        child: TextFormField(
-                          controller: _controller,
-                          focusNode: focusNode,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Scan",
-                            hintText: "Hint Text",
-                          ),
-                          onFieldSubmitted: (value) async {
-                            onEventScan();
-                            await Future.delayed(Duration(milliseconds: 500));
-                            _controller.clear();
-                            await Future.delayed(Duration(milliseconds: 500));
-                            focusNode.requestFocus();
-                          },
+                      child: TextField(
+                        controller: _controller,
+                        autofocus: true,
+                        focusNode: focusNode,
+                        keyboardType: TextInputType.text,
+                        enableInteractiveSelection: true,
+                        showCursor: true,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Scan",
+                          hintText: "Hint Text",
                         ),
+                        onEditingComplete: () async {
+                          if (_controller.text.length > 5) {
+                            await onEventScan();
+                            _controller.clear();
+                          }
+                        },
+                        // onChanged: (value) {
+                        //   print(value);
+                        //   onEventScan();
+                        //   _controller.clear();
+                        // },
                       ),
                     ),
                     zincDataSource != null
