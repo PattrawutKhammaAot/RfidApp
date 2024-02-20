@@ -43,7 +43,6 @@ class _HomePageControlState extends State<HomePageControl> {
       ReportScreen(
         receiveValue: sendValue,
       ),
-      ImportTestScreen()
     ];
     return Scaffold(
       appBar: AppBar(
@@ -80,10 +79,6 @@ class _HomePageControlState extends State<HomePageControl> {
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Import',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Test',
           ),
         ],
         currentIndex: _selectedIndex,

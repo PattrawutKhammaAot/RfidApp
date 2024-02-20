@@ -56,25 +56,33 @@ class _ReportScreenState extends State<ReportScreen> {
 
     if (result != null) {
       final String csvPath = result.files.single.path!;
+
       final String csvString = await File(csvPath).readAsString(encoding: utf8);
 
-      final List<List<dynamic>> csvData =
-          CsvToListConverter().convert(csvString, fieldDelimiter: '|');
-      csvData.forEach((row) {
-        row.forEach((col) {
-          ImportRfidCodeModel importModel = ImportRfidCodeModel(
-            rfidTag: col.toString(),
-            createDate: DateTime.now(),
-          );
+      final List<List<dynamic>> csvData = CsvToListConverter()
+          .convert(csvString.trim(), fieldDelimiter: '|', eol: '\n');
 
-          _itemImport.add(importModel);
+      print(jsonEncode(csvData));
+      csvData.forEach((row) {
+        // print(row);
+        row.forEach((col) {
+          final columData = col.toString().trim();
+          // if (columData.isNotEmpty) {
+          //   ImportRfidCodeModel importModel = ImportRfidCodeModel(
+          //     rfidTag: columData,
+          //     createDate: DateTime.now(),
+          //   );
+          //   print(columData);
+
+          //   _itemImport.add(importModel);
+          // }
         });
       });
       setState(() {});
 
-      BlocProvider.of<ScanrfidCodeBloc>(context).add(
-        ImportRfidCodeEvent(_itemImport),
-      );
+      // BlocProvider.of<ScanrfidCodeBloc>(context).add(
+      //   ImportRfidCodeEvent(_itemImport),
+      // );
     }
   }
 
