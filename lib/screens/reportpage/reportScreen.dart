@@ -101,6 +101,8 @@ class _ReportScreenState extends State<ReportScreen> {
               EasyLoading.dismiss();
               if (state.totalScanModel != null) {
                 totalScanModel = state.totalScanModel!;
+                print(totalScanModel.totalFound);
+                print(totalScanModel.totalMaster);
                 chartData.add(ChartData(
                     'Master',
                     double.parse(totalScanModel.totalMaster.toString()),
@@ -261,7 +263,10 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalMaster != 0
+                              percent: totalScanModel.totalMaster != 0 &&
+                                      totalScanModel.totalFound != 0 &&
+                                      totalScanModel.totalFound! <
+                                          totalScanModel.totalMaster!
                                   ? totalScanModel.totalFound! /
                                       totalScanModel.totalMaster!
                                   : 1,
@@ -345,7 +350,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                   : 0.0,
                               center: totalScanModel.totalLoss! >
                                       totalScanModel.totalMaster!
-                                  ? Text("${totalScanModel.totalLoss!} EA")
+                                  ? Text(
+                                      "Loss \n ${totalScanModel.totalLoss!} EA",
+                                      textAlign: TextAlign.center,
+                                    )
                                   : Text(
                                       " Loss \n ${totalScanModel.totalLoss != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt() : "No data"}% \n ${totalScanModel.totalLoss} EA",
                                       textAlign: TextAlign.center,
