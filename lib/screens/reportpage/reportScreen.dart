@@ -58,14 +58,12 @@ class _ReportScreenState extends State<ReportScreen> {
       final String csvPath = result.files.single.path!;
 
       final String csvString = await File(csvPath).readAsString(encoding: utf8);
-      print('csv string ${csvString.trim()}');
 
       final List<List<dynamic>> csvData = CsvToListConverter().convert(
           csvString.toString().trim(),
           fieldDelimiter: '*|*',
           eol: '\n');
 
-      print(jsonEncode(csvData));
       csvData.forEach((row) {
         row.forEach((col) {
           final columData = col.toString().trim();
@@ -74,7 +72,6 @@ class _ReportScreenState extends State<ReportScreen> {
               rfidTag: columData.replaceAll("|", ""),
               createDate: DateTime.now(),
             );
-            print(columData);
 
             _itemImport.add(importModel);
           }
@@ -136,6 +133,7 @@ class _ReportScreenState extends State<ReportScreen> {
             if (state.status == FetchStatus.importFinish) {
               EasyLoading.dismiss();
               chartData.clear();
+              _itemImport.clear();
 
               BlocProvider.of<ScanrfidCodeBloc>(context).add(
                 GetTotoalScanEvent(),
