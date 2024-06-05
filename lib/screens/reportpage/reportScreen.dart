@@ -146,8 +146,8 @@ class _ReportScreenState extends State<ReportScreen> {
         ],
         child: Scaffold(
           floatingActionButton: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              primary: primaryColor,
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(blueColor),
             ),
             onPressed: () async {
               _importCSV();

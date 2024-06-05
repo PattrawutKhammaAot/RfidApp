@@ -11,6 +11,7 @@ class ZincDataSource extends DataGridSource {
               cells: [
                 DataGridCell<String>(
                     columnName: 'rfid_tag', value: _item.rfid_tag),
+                DataGridCell(columnName: 'RSSI', value: "-${_item.rssi} dBm"),
                 DataGridCell<String>(columnName: 'status', value: _item.status),
                 // DataGridCell<String>(columnName: 't1', value: _item.Thickness1),
                 // DataGridCell<String>(columnName: 't2', value: _item.Thickness2),
@@ -50,6 +51,13 @@ class ZincDataSource extends DataGridSource {
                         .value ==
                     'Not Found') {
               return Colors.red;
+            } else if (dataGridCell.columnName == 'RSSI' &&
+                row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'status')
+                        .value ==
+                    'Not Found') {
+              return Colors.red;
             } else {
               return Colors.green;
             }
@@ -60,6 +68,13 @@ class ZincDataSource extends DataGridSource {
                 dataGridCell.value == 'Not Found') {
               return Colors.white;
             } else if (dataGridCell.columnName == 'rfid_tag' &&
+                row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'status')
+                        .value ==
+                    'Not Found') {
+              return Colors.white;
+            } else if (dataGridCell.columnName == 'RSSI' &&
                 row
                         .getCells()
                         .firstWhere((cell) => cell.columnName == 'status')
@@ -89,24 +104,23 @@ class ZincDataSource extends DataGridSource {
 }
 
 class tempRfidItemList {
-  tempRfidItemList({
-    this.rfid_tag,
-    this.status,
-  });
+  tempRfidItemList({this.rfid_tag, this.status, this.rssi});
 
   final String? status;
   final String? rfid_tag;
+  final String? rssi;
 
   List<Object> get props => [status!, rfid_tag!];
 
   static tempRfidItemList fromJson(dynamic json) {
     return tempRfidItemList(
-      status: json['Group'],
-      rfid_tag: json['Value_Member'],
-    );
+        status: json['Group'],
+        rfid_tag: json['Value_Member'],
+        rssi: json['rssi']);
   }
 
   tempRfidItemList.fromMap(Map<String, dynamic> map)
       : status = map['nameGroup'],
+        rssi = map['rssi'],
         rfid_tag = map['valueMember'];
 }

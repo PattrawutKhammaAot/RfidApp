@@ -24,6 +24,9 @@ class ApiConfig {
   static String GET_TOTAL_SCAN = "${BASE_API_URL}api/ScanrfidCode/getTotalScan";
   static String IMPORT_RFID_TAG =
       "${BASE_API_URL}api/ScanrfidCode/importMasterRfidTag";
+
+  static String SERACH_TAG_RFID =
+      "${BASE_API_URL}api/ScanrfidCode/searchRfid"; //?rfid=1&status=false
 }
 
 void offKeyBoard() {

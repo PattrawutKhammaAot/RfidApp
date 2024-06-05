@@ -9,6 +9,7 @@ import 'package:rfid/screens/import_test/import_Test_Screen.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
+import 'package:rfid/screens/searchtag/serachtag_Screen.dart';
 
 class HomePageControl extends StatefulWidget {
   const HomePageControl({super.key});
@@ -30,8 +31,14 @@ class _HomePageControlState extends State<HomePageControl> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
+      const SearchTagsScreen(),
       ScanScreen(
         onChange: (value) {
           setState(() {
@@ -56,7 +63,7 @@ class _HomePageControlState extends State<HomePageControl> {
             padding: const EdgeInsets.only(right: 10),
             child: GestureDetector(
               onTap: () async {
-                await exportTemplate();
+                exportTemplate();
               },
               child: Icon(
                 Icons.info,
@@ -73,12 +80,16 @@ class _HomePageControlState extends State<HomePageControl> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'Search Tags',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Scan',
+            label: 'Scan Tags',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Import',
+            label: 'Report',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -103,21 +114,19 @@ class _HomePageControlState extends State<HomePageControl> {
   }
 
   Future<void> exportTxt({String? data, String? fileName}) async {
-    if (await Permission.storage.request().isGranted) {
-      var directory = await AndroidPathProvider.downloadsPath;
+    var directory = await AndroidPathProvider.downloadsPath;
 
-      var selectDirectory = directory;
-      var directoryExists = await Directory(selectDirectory).exists();
-      if (!directoryExists) {
-        await Directory(selectDirectory).create(recursive: true);
-      }
-
-      ///storage/emulated/0/Download
-      var filename = fileName;
-      var pathFile = '$selectDirectory/$filename.txt';
-
-      var file = File(pathFile);
-      await file.writeAsString(data!);
+    var selectDirectory = directory;
+    var directoryExists = await Directory(selectDirectory).exists();
+    if (!directoryExists) {
+      await Directory(selectDirectory).create(recursive: true);
     }
+
+    ///storage/emulated/0/Download
+    var filename = fileName;
+    var pathFile = '$selectDirectory/$filename.txt';
+    print(pathFile);
+    var file = File(pathFile);
+    await file.writeAsString(data!);
   }
 }

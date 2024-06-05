@@ -7,7 +7,7 @@ part 'network_state.dart';
 
 class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
   NetworkBloc._() : super(NetworkInitial()) {
-    on<NetworkObserve>(_observe);
+    // on<NetworkObserve>(_observe);
     on<NetworkNotify>(_notifyStatus);
   }
 
@@ -15,9 +15,9 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
 
   factory NetworkBloc() => _instance;
 
-  void _observe(event, emit) {
-    NetworkHelper.observeNetwork();
-  }
+  // void _observe(event, emit) {
+  //   NetworkHelper.observeNetwork();
+  // }
 
   void _notifyStatus(NetworkNotify event, emit) {
     event.isConnected ? emit(NetworkSuccess()) : emit(NetworkFailure());
