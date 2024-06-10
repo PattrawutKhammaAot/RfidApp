@@ -41,6 +41,7 @@ class _ScanScreenState extends State<ScanScreen> {
   FocusNode focusNode = FocusNode();
 
   bool isScanning = false;
+  bool isASCII = false;
 
   @override
   void initState() {
@@ -49,6 +50,10 @@ class _ScanScreenState extends State<ScanScreen> {
     );
     focusNode.requestFocus();
     zincDataSource = ZincDataSource(process: []);
+    SDK_Function.getASCII().then((value) {
+      isASCII = value;
+      setState(() {});
+    });
 
     super.initState();
   }
@@ -88,12 +93,12 @@ class _ScanScreenState extends State<ScanScreen> {
                 print(event);
                 if (event is KeyDownEvent) {
                   print("scan");
-                  await NativeFunctions.scan(true);
+                  await SDK_Function.scan(true);
                   isScanning = true;
                   setState(() {});
                 } else if (event is KeyUpEvent) {
                   print("No scan");
-                  await NativeFunctions.scan(false);
+                  await SDK_Function.scan(false);
                   isScanning = false;
                   setState(() {});
                 } else {
@@ -108,7 +113,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                         zincDataSource != null
                             ? FutureBuilder(
-                                future: NativeFunctions.setTagScannedListener(
+                                future: SDK_Function.setTagScannedListener(
                                     (epc, dbm) {
                                   onEventScan(epc.trim(), dbm);
                                   // _addTable.add(tempRfidItemList(
@@ -197,10 +202,10 @@ class _ScanScreenState extends State<ScanScreen> {
                                                     .withOpacity(0.5))),
                                 onPressed: () async {
                                   if (!isScanning) {
-                                    await NativeFunctions.scan(true);
+                                    await SDK_Function.scan(true);
                                     isScanning = true;
                                   } else {
-                                    await NativeFunctions.scan(false);
+                                    await SDK_Function.scan(false);
                                     isScanning = false;
                                   }
                                   setState(() {});
@@ -289,6 +294,21 @@ class _ScanScreenState extends State<ScanScreen> {
                                               "Found: ${_addTable.where((element) => element.status == "Found").toList().length}"),
                                           Text(
                                               "Loss: ${_addTable.where((element) => element.status != "Found").toList().length}"),
+                                          Row(
+                                            children: <Widget>[
+                                              Text("ASCII"),
+                                              Checkbox(
+                                                value: isASCII,
+                                                onChanged: (value) async {
+                                                  await SDK_Function.setASCII(
+                                                      value!);
+                                                  setState(() {
+                                                    isASCII = value;
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          )
                                         ],
                                       ),
                                     ),

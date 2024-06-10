@@ -30,6 +30,7 @@ import com.ubx.usdk.USDKManager;
 import com.ubx.usdk.listener.InitListener;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Build;
 
 
 import com.ubx.usdk.rfid.RfidManager;
@@ -41,6 +42,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     public static final String DECODE_DATA_TAG = "com.example.app.DECODE_DATA";
     private ScanCallback callback;
     private Context context;
+    boolean isASCII = false;
 
 
     @Override
@@ -48,27 +50,26 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
         channel = new MethodChannel(binding.getBinaryMessenger(), "com.example/customChannel");
         channel.setMethodCallHandler(this);
         IntentFilter filter = new IntentFilter();
-        
-   
-        initRfid(binding.getApplicationContext());
-    
+            initRfid(binding.getApplicationContext());
         binding.getApplicationContext().registerReceiver(myDataReceiver, filter);
     }
-// 2. Define the startInventory method
-private void startInventory() {
-    if (mRfidManager != null) {
-        mRfidManager.startInventory(0); // replace 0 with the actual session number
-    }
-}
+
 
 class ScanCallback implements IRfidCallback {
     @Override
     public void onInventoryTag(String EPC, final String TID, final String strRSSI) {
-
+    
+                
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                sendEPCToFlutter(EPC, strRSSI);
+                if(isASCII){
+                    final String asciiEPC = hexToAscii(EPC);
+                    sendEPCToFlutter( asciiEPC, strRSSI,isASCII);
+                }else{
+                    sendEPCToFlutter( EPC, strRSSI,isASCII);
+                }
+              
             }
         });
     }
@@ -125,8 +126,8 @@ class ScanCallback implements IRfidCallback {
         
     }
 
-    private void sendEPCToFlutter(String epc,String rssi) {
-        Log.d(TAG, "sendEPCToFlutter()  epc = " + epc + "  rssi = " + rssi);
+    private void sendEPCToFlutter(String epc,String rssi,boolean isASCII) {
+        Log.d(TAG, "sendEPCToFlutter()  epc = " + epc + "  rssi = " + rssi + " isASCII = " + isASCII);
         Map<String, String> tagData = new HashMap<>();
         tagData.put("epc", epc);
         tagData.put("rssi", rssi);
@@ -136,7 +137,14 @@ class ScanCallback implements IRfidCallback {
     private void sendConnection(boolean status) {
         channel.invokeMethod("Connection", status);
     }
-
+    private String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+        return output.toString();
+    }
     @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
        
@@ -155,6 +163,25 @@ class ScanCallback implements IRfidCallback {
             case "Scanned":
             RFIDSDKManager.getInstance().enableScanHead(Boolean.parseBoolean(call.argument("statusTrg").toString()));
             result.success("Scanned" + call.argument("statusTrg"));
+            break;
+            case "GetPower":
+            result.success(mRfidManager.getOutputPower());
+            break;
+            case "SetPower":
+            int power = call.argument("power");
+            int isSuccess = mRfidManager.setOutputPower(power);
+            if(isSuccess == 0){
+                result.success("Power set to " + power);
+            }else{
+                result.error("Error", "Error setting power", null);
+            }
+            break;
+            case "SetASCII":
+             isASCII = Boolean.parseBoolean(call.argument("isASCII").toString());
+            result.success("Success! ASCII set to " + isASCII);
+            break;
+            case "GetASCII":
+            result.success(isASCII);
             break;
 
             default:

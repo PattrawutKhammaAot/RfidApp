@@ -3,7 +3,7 @@ import 'dart:ffi';
 
 import 'package:flutter/services.dart';
 
-class NativeFunctions {
+class SDK_Function {
   static const platform = MethodChannel("com.example/customChannel");
 
   static Future<String> setScanHeader() async {
@@ -12,6 +12,31 @@ class NativeFunctions {
       status = !status;
       final result =
           await platform.invokeMethod('Scanned', {"statusTrg": true});
+      print(result);
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<dynamic> getASCII() async {
+    try {
+      dynamic result = await platform.invokeMethod('GetASCII');
+
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<String> setASCII(bool isACSII) async {
+    try {
+      bool status = false;
+      status = !status;
+      final result =
+          await platform.invokeMethod('SetASCII', {"isASCII": isACSII});
       print(result);
       return result;
     } catch (e) {
@@ -32,6 +57,29 @@ class NativeFunctions {
       return result;
     } catch (e) {
       print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<dynamic> getPower() async {
+    try {
+      dynamic result = await platform.invokeMethod('GetPower');
+
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<dynamic> setPower(int setpower) async {
+    try {
+      dynamic result =
+          await platform.invokeMethod('SetPower', {"power": setpower});
+      return result;
+    } catch (e, s) {
+      print(e);
+      print(s);
       return 'Error';
     }
   }

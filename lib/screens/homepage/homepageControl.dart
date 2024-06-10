@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/nativefunction/nativeFunction.dart';
 import 'package:rfid/screens/import_test/import_Test_Screen.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
@@ -21,8 +22,6 @@ class HomePageControl extends StatefulWidget {
 class _HomePageControlState extends State<HomePageControl> {
   List<tempRfidItemList> sendValue = [];
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void _onItemTapped(int index) {
     setState(() {
@@ -60,7 +59,21 @@ class _HomePageControlState extends State<HomePageControl> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 10),
+            padding: const EdgeInsets.only(right: 20),
+            child: GestureDetector(
+              onTap: () async {
+                var currentPower = await SDK_Function.getPower();
+                modalPickerNumber(currentPower);
+              },
+              child: Icon(
+                Icons.settings,
+                color: whiteColor,
+                size: 30,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
             child: GestureDetector(
               onTap: () async {
                 exportTemplate();
@@ -128,5 +141,58 @@ class _HomePageControlState extends State<HomePageControl> {
     print(pathFile);
     var file = File(pathFile);
     await file.writeAsString(data!);
+  }
+
+  void modalPickerNumber(dynamic power) {
+    // Mock data
+    List<int> numbers = List<int>.generate(33, (i) => i + 1);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Column(
+            children: <Widget>[
+              const SizedBox(height: 10, width: double.infinity),
+              const Center(
+                  child: Text(
+                "Select Power",
+                style: TextStyle(fontSize: 20),
+              )),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Current Power : $power",
+                style: TextStyle(fontSize: 18),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8, left: 8),
+                child: Divider(
+                  color: Colors.black,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  itemCount: numbers.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text('Power : ${numbers[index]}'),
+                      onTap: () async {
+                        var result =
+                            await SDK_Function.setPower(numbers[index]);
+                        EasyLoading.showSuccess(result);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
