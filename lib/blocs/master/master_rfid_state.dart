@@ -1,22 +1,22 @@
-part of 'search_rfid_bloc.dart';
+part of 'master_rfid_bloc.dart';
 
-class SearchRfidState extends Equatable {
-  final List<Tag_Running_RfidData>? data;
+class MasterRfidState extends Equatable {
+  final List<Master_rfidData>? data;
   final FetchStatus status;
   final DefaultResponse? dataDefaultResponse;
   final String message;
-  const SearchRfidState(
+  const MasterRfidState(
       {this.data,
       this.status = FetchStatus.init,
       this.message = '',
       this.dataDefaultResponse});
 
-  SearchRfidState copyWith(
-      {List<Tag_Running_RfidData>? data,
+  MasterRfidState copyWith(
+      {List<Master_rfidData>? data,
       FetchStatus? status,
       String? message,
       DefaultResponse? dataDefaultResponse}) {
-    return SearchRfidState(
+    return MasterRfidState(
         data: data = data ?? this.data,
         status: status = status ?? this.status,
         message: message = message ?? this.message,
@@ -31,7 +31,7 @@ class SearchRfidState extends Equatable {
       ];
 }
 
-class SearchRfidInitial extends SearchRfidState {
+class MasterRfidInitial extends MasterRfidState {
   @override
   List<Object> get props => [];
 }

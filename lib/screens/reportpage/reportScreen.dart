@@ -125,7 +125,7 @@ class _ReportScreenState extends State<ReportScreen> {
             }
             if (state.status == FetchStatus.failed) {
               EasyLoading.dismiss();
-              EasyLoading.showError(state.message);
+              EasyLoading.showError("Error");
             }
             if (state.status == FetchStatus.importLoading) {
               EasyLoading.show(status: 'loading...');
@@ -140,7 +140,7 @@ class _ReportScreenState extends State<ReportScreen> {
               );
             }
             if (state.status == FetchStatus.failed) {
-              EasyLoading.showError(state.message);
+              EasyLoading.showError("error failed");
             }
           })
         ],

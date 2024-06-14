@@ -38,22 +38,25 @@ class SearchRfidModel {
 }
 
 class RfidData {
+  int? key_id;
   String? tagId;
   String? rssi;
   String? status;
 
   RfidData({
+    this.key_id,
     this.tagId,
     this.rssi,
     this.status,
   });
 
   factory RfidData.fromJson(Map<String, dynamic> json) => RfidData(
+        key_id: json["key_id"],
         tagId: json["tag_id"],
         rssi: json["rssi"],
         status: json["status"],
       );
 
   Map<String, dynamic> toJson() =>
-      {"tag_id": tagId, "rssi": rssi, "status": status};
+      {"tag_id": tagId, "rssi": rssi, "status": status, "key_id": key_id};
 }

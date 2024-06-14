@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
+
 import 'dart:io';
 
 import 'package:android_path_provider/android_path_provider.dart';
@@ -16,6 +15,7 @@ import 'package:rfid/blocs/scanrfid/models/rfidItemListToJsonModel.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/config/appConfig.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/database/database.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
@@ -35,7 +35,7 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   ZincDataSource? zincDataSource;
-  RfidItemList itemList = RfidItemList();
+  List<Master_rfidData> itemList = [];
 
   List<tempRfidItemList> _addTable = [];
   FocusNode focusNode = FocusNode();
@@ -92,252 +92,236 @@ class _ScanScreenState extends State<ScanScreen> {
               onKeyEvent: (event) async {
                 print(event);
                 if (event is KeyDownEvent) {
-                  print("scan");
                   await SDK_Function.scan(true);
                   isScanning = true;
                   setState(() {});
                 } else if (event is KeyUpEvent) {
-                  print("No scan");
                   await SDK_Function.scan(false);
                   isScanning = false;
                   setState(() {});
-                } else {
-                  print(event);
                 }
               },
-              child: itemList.itemListRfid != null
-                  ? Column(
-                      children: [
-                        SizedBox(
-                          height: 0,
-                        ),
-                        zincDataSource != null
-                            ? FutureBuilder(
-                                future: SDK_Function.setTagScannedListener(
-                                    (epc, dbm) {
-                                  onEventScan(epc.trim(), dbm);
-                                  // _addTable.add(tempRfidItemList(
-                                  //   rfid_tag: epc,
-                                  //   rssi: dbm,
-                                  //   status: "Found",
-                                  // ));
-                                  // setState(() {
-                                  //   zincDataSource =
-                                  //       ZincDataSource(process: _addTable);
-                                  // });
-                                }),
-                                builder: (context, snapshot) {
-                                  return Expanded(
-                                    flex: 2,
-                                    child: SfDataGrid(
-                                      onFilterChanged: (details) {
-                                        print(details.column);
-                                      },
-                                      source: zincDataSource!,
-                                      headerGridLinesVisibility:
-                                          GridLinesVisibility.both,
-                                      gridLinesVisibility:
-                                          GridLinesVisibility.both,
-                                      selectionMode: SelectionMode.multiple,
-                                      allowPullToRefresh: true,
-                                      allowSorting: true,
-                                      allowColumnsResizing: true,
-                                      columnWidthMode: ColumnWidthMode.fill,
-                                      columns: <GridColumn>[
-                                        GridColumn(
-                                            visible: true,
-                                            columnName: 'rfid_tag',
-                                            label: Container(
-                                              color: Colors.white,
-                                              child: Center(
-                                                child: Text(
-                                                  'RFID Tag',
-                                                ),
-                                              ),
-                                            ),
-                                            allowSorting: false),
-                                        GridColumn(
-                                            visible: true,
-                                            columnName: 'RSSI',
-                                            label: Container(
-                                              color: Colors.white,
-                                              child: Center(
-                                                child: Text(
-                                                  'Rssi',
-                                                ),
-                                              ),
-                                            ),
-                                            allowSorting: true),
-                                        GridColumn(
-                                            visible: true,
-                                            columnName: 'Status',
-                                            label: Container(
-                                              color: Colors.white,
-                                              child: Center(
-                                                child: Text(
-                                                  'Status',
-                                                ),
-                                              ),
-                                            ),
-                                            allowSorting: false),
-                                      ],
-                                    ),
-                                  );
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 0,
+                  ),
+                  zincDataSource != null
+                      ? FutureBuilder(
+                          future:
+                              SDK_Function.setTagScannedListener((epc, dbm) {
+                            onEventScan(epc.trim(), dbm);
+                            // _addTable.add(tempRfidItemList(
+                            //   rfid_tag: epc,
+                            //   rssi: dbm,
+                            //   status: "Found",
+                            // ));
+                            // setState(() {
+                            //   zincDataSource =
+                            //       ZincDataSource(process: _addTable);
+                            // });
+                          }),
+                          builder: (context, snapshot) {
+                            return Expanded(
+                              flex: 2,
+                              child: SfDataGrid(
+                                onFilterChanged: (details) {
+                                  print(details.column);
                                 },
-                              )
-                            : SizedBox.fromSize(),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll<Color>(
-                                            isScanning
-                                                ? Colors.red
-                                                : Colors.grey
-                                                    .withOpacity(0.5))),
-                                onPressed: () async {
-                                  if (!isScanning) {
-                                    await SDK_Function.scan(true);
-                                    isScanning = true;
-                                  } else {
-                                    await SDK_Function.scan(false);
-                                    isScanning = false;
-                                  }
-                                  setState(() {});
-                                },
-                                child: Text(
-                                    isScanning ? "Stop Scan" : "Start Scan",
-                                    style: TextStyle(color: Colors.white))),
-                            ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll<Color>(
-                                            Colors.orangeAccent)),
-                                onPressed: () async {
-                                  _addTable.clear();
-                                  setState(() {
-                                    zincDataSource =
-                                        ZincDataSource(process: []);
-                                  });
-                                },
-                                child: Text(
-                                  "Clear Data",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                            ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll<Color>(
-                                            _addTable.isNotEmpty
-                                                ? Colors.blue
-                                                : Colors.grey
-                                                    .withOpacity(0.5))),
-                                onPressed: () async {
-                                  if (_addTable.isNotEmpty) {
-                                    await exportDataToTxt();
-                                  } else {
-                                    EasyLoading.showError("No Data Export");
-                                  }
-                                },
-                                child: Text(
-                                  "Export Data",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                          ],
-                        ),
-                        zincDataSource != null
-                            ? Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.only(left: 10, right: 10),
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.1,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: Colors.white,
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.grey,
-                                              offset: Offset(
-                                                1.0,
-                                                1.0,
-                                              ),
-                                              blurRadius: 5.0,
-                                              spreadRadius: 2.0,
-                                            ), //BoxShadow
-                                            BoxShadow(
-                                              color: Colors.white,
-                                              offset: Offset(0.0, 0.0),
-                                              blurRadius: 0.0,
-                                              spreadRadius: 0.0,
-                                            ),
-                                          ],
-                                          border: Border.all(
-                                              color: Colors.white, width: 1)),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text("Total: ${_addTable.length}"),
-                                          Text(
-                                              "Found: ${_addTable.where((element) => element.status == "Found").toList().length}"),
-                                          Text(
-                                              "Loss: ${_addTable.where((element) => element.status != "Found").toList().length}"),
-                                          Row(
-                                            children: <Widget>[
-                                              Text("ASCII"),
-                                              Checkbox(
-                                                value: isASCII,
-                                                onChanged: (value) async {
-                                                  await SDK_Function.setASCII(
-                                                      value!);
-                                                  setState(() {
-                                                    isASCII = value;
-                                                  });
-                                                },
-                                              ),
-                                            ],
-                                          )
-                                        ],
+                                source: zincDataSource!,
+                                headerGridLinesVisibility:
+                                    GridLinesVisibility.both,
+                                gridLinesVisibility: GridLinesVisibility.both,
+                                selectionMode: SelectionMode.multiple,
+                                allowPullToRefresh: true,
+                                allowSorting: true,
+                                allowColumnsResizing: true,
+                                columnWidthMode: ColumnWidthMode.fill,
+                                columns: <GridColumn>[
+                                  GridColumn(
+                                      visible: true,
+                                      columnName: 'rfid_tag',
+                                      label: Container(
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: Text(
+                                            'RFID Tag',
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
+                                      allowSorting: false),
+                                  GridColumn(
+                                      visible: true,
+                                      columnName: 'RSSI',
+                                      label: Container(
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: Text(
+                                            'Rssi',
+                                          ),
+                                        ),
+                                      ),
+                                      allowSorting: true),
+                                  GridColumn(
+                                      visible: true,
+                                      columnName: 'Status',
+                                      label: Container(
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: Text(
+                                            'Status',
+                                          ),
+                                        ),
+                                      ),
+                                      allowSorting: false),
                                 ],
-                              )
-                            : SizedBox.fromSize(),
-                        SizedBox(
-                          height: 15,
-                        ),
-                      ],
-                    )
-                  : Center(
-                      child: CircularProgressIndicator(),
-                    ))),
+                              ),
+                            );
+                          },
+                        )
+                      : SizedBox.fromSize(),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(
+                                  isScanning
+                                      ? Colors.red
+                                      : Colors.grey.withOpacity(0.5))),
+                          onPressed: () async {
+                            if (!isScanning) {
+                              await SDK_Function.scan(true);
+                              isScanning = true;
+                            } else {
+                              await SDK_Function.scan(false);
+                              isScanning = false;
+                            }
+                            setState(() {});
+                          },
+                          child: Text(isScanning ? "Stop Scan" : "Start Scan",
+                              style: TextStyle(color: Colors.white))),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(
+                                  Colors.orangeAccent)),
+                          onPressed: () async {
+                            _addTable.clear();
+                            setState(() {
+                              zincDataSource = ZincDataSource(process: []);
+                            });
+                          },
+                          child: Text(
+                            "Clear Data",
+                            style: TextStyle(color: Colors.white),
+                          )),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStatePropertyAll<Color>(
+                                  _addTable.isNotEmpty
+                                      ? Colors.blue
+                                      : Colors.grey.withOpacity(0.5))),
+                          onPressed: () async {
+                            if (_addTable.isNotEmpty) {
+                              await exportDataToTxt();
+                            } else {
+                              EasyLoading.showError("No Data Export");
+                            }
+                          },
+                          child: Text(
+                            "Export Data",
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    ],
+                  ),
+                  zincDataSource != null
+                      ? Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                width: MediaQuery.of(context).size.width,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.1,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.grey,
+                                        offset: Offset(
+                                          1.0,
+                                          1.0,
+                                        ),
+                                        blurRadius: 5.0,
+                                        spreadRadius: 2.0,
+                                      ), //BoxShadow
+                                      BoxShadow(
+                                        color: Colors.white,
+                                        offset: Offset(0.0, 0.0),
+                                        blurRadius: 0.0,
+                                        spreadRadius: 0.0,
+                                      ),
+                                    ],
+                                    border: Border.all(
+                                        color: Colors.white, width: 1)),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Text("Total: ${_addTable.length}"),
+                                    Text(
+                                        "Found: ${_addTable.where((element) => element.status == "Found").toList().length}"),
+                                    Text(
+                                        "Loss: ${_addTable.where((element) => element.status != "Found").toList().length}"),
+                                    Row(
+                                      children: <Widget>[
+                                        Text("ASCII"),
+                                        Checkbox(
+                                          value: isASCII,
+                                          onChanged: (value) async {
+                                            await SDK_Function.setASCII(value!);
+                                            setState(() {
+                                              isASCII = value;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : SizedBox.fromSize(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                ],
+              ))),
     );
   }
 
   Future onEventScan(String _controller, String rssi) async {
     if (_controller.isNotEmpty) {
-      var result = itemList.itemListRfid!
+      var result = itemList
           .where((element) =>
-              element.rfidNumber?.toUpperCase() == _controller.toUpperCase())
+              element.rfid_tag?.toUpperCase() == _controller.toUpperCase())
           .toList();
+      // หาเจอ
       if (result.isNotEmpty) {
+        //หา ใน Listตัวเองว่ามีหรือไม่
         if (_addTable
             .where((element) => element.rfid_tag == _controller)
             .toList()
             .isEmpty) {
+          //ถ้าไม่มี
+
           _addTable.add(tempRfidItemList(
             rfid_tag: _controller,
             status: "Found",
@@ -351,6 +335,23 @@ class _ScanScreenState extends State<ScanScreen> {
                 updateDate: DateTime.now())),
           );
           widget.onChange!(_addTable);
+        } else if (_addTable
+            .where((element) => element.rfid_tag == _controller)
+            .toList()
+            .isNotEmpty) {
+          _addTable.removeWhere((element) => element.rfid_tag == _controller);
+          _addTable.add(tempRfidItemList(
+            rfid_tag: _controller,
+            status: "Found",
+            rssi: rssi,
+          ));
+          BlocProvider.of<ScanrfidCodeBloc>(context).add(
+            SendRfidCodeEvent(ScanRfidCodeModel(
+                rfidNumber: _controller,
+                statusRunning: "Found",
+                rssi: rssi,
+                updateDate: DateTime.now())),
+          );
         } else if (_addTable
             .where((element) =>
                 element.rfid_tag == _controller &&
@@ -384,6 +385,17 @@ class _ScanScreenState extends State<ScanScreen> {
                 updateDate: DateTime.now())),
           );
           widget.onChange!(_addTable);
+        } else {
+          _addTable.removeWhere((element) => element.rfid_tag == _controller);
+          _addTable.add(tempRfidItemList(
+              rfid_tag: _controller, status: "Not Found", rssi: rssi));
+          BlocProvider.of<ScanrfidCodeBloc>(context).add(
+            SendRfidCodeEvent(ScanRfidCodeModel(
+                rfidNumber: _controller,
+                statusRunning: "Not Found",
+                rssi: rssi,
+                updateDate: DateTime.now())),
+          );
         }
       }
 

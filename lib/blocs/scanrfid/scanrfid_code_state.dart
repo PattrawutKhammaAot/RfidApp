@@ -1,7 +1,7 @@
 part of 'scanrfid_code_bloc.dart';
 
 class ScanrfidCodeState extends Equatable {
-  final RfidItemList? data;
+  final List<Master_rfidData>? data;
   final FetchStatus status;
   final String message;
   final TotalScanModel? totalScanModel;
@@ -13,7 +13,7 @@ class ScanrfidCodeState extends Equatable {
       this.totalScanModel});
 
   ScanrfidCodeState copyWith({
-    RfidItemList? data,
+    List<Master_rfidData>? data,
     FetchStatus? status,
     String? message,
     TotalScanModel? totalScanModel,

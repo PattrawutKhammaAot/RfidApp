@@ -14,3 +14,11 @@ class SerachEvent extends SearchRfidEvent {
   @override
   List<Object> get props => [rfid];
 }
+
+class DeleteRfidEvent extends SearchRfidEvent {
+  const DeleteRfidEvent(this.key_id);
+  final int key_id;
+
+  @override
+  List<Object> get props => [key_id];
+}

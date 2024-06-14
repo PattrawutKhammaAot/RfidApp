@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:android_path_provider/android_path_provider.dart';
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/main.dart';
 import 'package:rfid/nativefunction/nativeFunction.dart';
+import 'package:rfid/screens/addpage/addRfid_page.dart';
 import 'package:rfid/screens/import_test/import_Test_Screen.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
@@ -38,6 +41,7 @@ class _HomePageControlState extends State<HomePageControl> {
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
       const SearchTagsScreen(),
+      AddRfidPage(),
       ScanScreen(
         onChange: (value) {
           setState(() {
@@ -53,9 +57,16 @@ class _HomePageControlState extends State<HomePageControl> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[700],
-        title: const Text(
-          'RFID APP',
-          style: TextStyle(color: whiteColor),
+        title: GestureDetector(
+          onTap: () {
+            final db = appDb; //This should be a singleton
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => DriftDbViewer(db)));
+          },
+          child: const Text(
+            'RFID APP',
+            style: TextStyle(color: whiteColor),
+          ),
         ),
         actions: [
           Padding(
@@ -97,6 +108,10 @@ class _HomePageControlState extends State<HomePageControl> {
             label: 'Search Tags',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.ad_units),
+            label: 'Master',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Scan Tags',
           ),
@@ -107,6 +122,8 @@ class _HomePageControlState extends State<HomePageControl> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue[700],
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
         onTap: _onItemTapped,
       ),
     );

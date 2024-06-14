@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rfid/blocs/master/master_rfid_bloc.dart';
 import 'package:rfid/blocs/network/bloc/network_bloc.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
@@ -20,7 +21,9 @@ enum FetchStatus {
   removeSuccess,
   importLoading,
   importFinish,
-  importFailed
+  importFailed,
+  deleteSuccess,
+  searchSuccess
 }
 
 class App extends StatefulWidget {
@@ -71,6 +74,9 @@ class _AppState extends State<App> {
             ),
             BlocProvider<SearchRfidBloc>(
               create: (_) => SearchRfidBloc(),
+            ),
+            BlocProvider<MasterRfidBloc>(
+              create: (_) => MasterRfidBloc(),
             ),
           ], child: AppView());
         } else {
