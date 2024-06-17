@@ -71,6 +71,7 @@ class MasterRfidBloc extends Bloc<MasterRfidEvent, MasterRfidState> {
       try {
         emit(state.copyWith(status: FetchStatus.fetching));
         var result = await EditMaster(event.data);
+        print(result.statusCode);
         if (result.statusCode!) {
           emit(state.copyWith(
               status: FetchStatus.saved, dataDefaultResponse: result));

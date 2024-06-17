@@ -30,6 +30,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
 
   @override
   void initState() {
+    SDK_Function.setASCII(true);
     focusNode.requestFocus();
     BlocProvider.of<MasterRfidBloc>(context).add(
       GetMasterRfidEvent(),
@@ -43,15 +44,25 @@ class _AddRfidPageState extends State<AddRfidPage> {
   }
 
   @override
+  void dispose() {
+    print("Destroyed");
+    SDK_Function.setASCII(false);
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: FocusNode(),
       onKeyEvent: (e) async {
-        if (e is KeyDownEvent) {
+        print(e);
+        if (e is KeyDownEvent && e.physicalKey == PhysicalKeyboardKey.enter) {
           await SDK_Function.scan(true);
           isScanning = true;
           setState(() {});
-        } else if (e is KeyUpEvent) {
+        } else if (e is KeyUpEvent &&
+            e.physicalKey == PhysicalKeyboardKey.enter) {
           await SDK_Function.scan(false);
           isScanning = false;
           setState(() {});
@@ -113,25 +124,21 @@ class _AddRfidPageState extends State<AddRfidPage> {
                   controller: searchController,
                   focusNode: focusNode,
                   decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        if (searchController.text.length > 1) {
-                          context.read<MasterRfidBloc>().add(
-                              SearchMasterEvent(searchController.text.trim()));
-                        } else if (searchController.text.length == 0) {
-                          context
-                              .read<MasterRfidBloc>()
-                              .add(SearchMasterEvent(''));
-                        }
-                      },
-                    ),
                     border: OutlineInputBorder(),
-                    hintText: 'Search',
+                    hintText: 'Search / Add RFID Tag',
                   ),
-                  onSubmitted: (value) {
+                  onChanged: (value) {
+                    if (value.length > 1) {
+                      context
+                          .read<MasterRfidBloc>()
+                          .add(SearchMasterEvent(searchController.text.trim()));
+                    } else if (value.length == 0) {
+                      context.read<MasterRfidBloc>().add(SearchMasterEvent(''));
+                    }
+                  },
+                  onSubmitted: (value) async {
                     if (value.isNotEmpty) {
-                      onEventScan(searchController.text.trim(), "0");
+                      await onEventScan(searchController.text.trim(), "0");
                       searchController.clear();
                       focusNode.requestFocus();
                     }
@@ -141,15 +148,6 @@ class _AddRfidPageState extends State<AddRfidPage> {
               FutureBuilder(
                   future: SDK_Function.setTagScannedListener((epc, dbm) async {
                 await onEventScan(epc.trim(), dbm.trim());
-                // _addTable.add(tempRfidItemList(
-                //   rfid_tag: epc,
-                //   rssi: dbm,
-                //   status: "Found",
-                // ));
-                // setState(() {
-                //   zincDataSource =
-                //       ZincDataSource(process: _addTable);
-                // });
               }), builder: (context, snapshot) {
                 return itemList.isNotEmpty
                     ? Expanded(
@@ -172,8 +170,13 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                           itemList[index].key_id,
                                           itemList[index].rfid_tag!);
 
-                                      itemList = await appDb.getMasterAll();
-                                      setState(() {});
+                                      Future.delayed(
+                                          Duration(milliseconds: 500),
+                                          () async {
+                                        itemList = await appDb.getMasterAll();
+                                        temp_itemList = itemList;
+                                        setState(() {});
+                                      });
                                     },
                                     backgroundColor: Colors.green,
                                     foregroundColor: Colors.white,
@@ -298,28 +301,61 @@ class _AddRfidPageState extends State<AddRfidPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Column(
-            children: [Text('Add New Rfid'), Text("Current Rfid: $rfid")],
+            mainAxisSize: MainAxisSize.min,
+            children: [Text('Edit RFID')],
           ),
-          content: TextField(
-            controller: rfidController,
-            decoration: InputDecoration(hintText: "Enter new Rfid"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Current Rfid: $rfid"),
+              TextField(
+                autofocus: true,
+                controller: rfidController,
+                decoration: InputDecoration(
+                  hintText: "Enter new Rfid",
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Save'),
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.green),
+              ),
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: () async {
-                context.read<MasterRfidBloc>().add(EditMasterEvent(
-                    Master_rfidData(
-                        key_id: key_id, rfid_tag: rfidController.text.trim())));
+                if (rfidController.text.isNotEmpty) {
+                  if (itemList
+                      .where(
+                          (qry) => qry.rfid_tag == rfidController.text.trim())
+                      .isNotEmpty) {
+                    EasyLoading.showError("Duplicate Rfid");
+                  } else {
+                    context.read<MasterRfidBloc>().add(EditMasterEvent(
+                        Master_rfidData(
+                            key_id: key_id,
+                            rfid_tag: rfidController.text.trim())));
+                    Navigator.of(context).pop();
+                    completer.complete();
+                  }
 
-                setState(() {});
-                Navigator.of(context).pop();
-                completer.complete();
+                  setState(() {});
+                }
+
                 // ปิด dialog เมื่อกด Save
               },
             ),
             TextButton(
-              child: Text('Close'),
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.red),
+              ),
+              child: Text(
+                'Close',
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: () {
                 setState(() {});
                 Navigator.of(context).pop(); // ปิด dialog เมื่อกด Close

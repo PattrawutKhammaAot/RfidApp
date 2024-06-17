@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -33,6 +34,10 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
       SerachEvent(''),
     );
     focusNode.requestFocus();
+    Future.delayed(Duration(milliseconds: 500), () async {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+      setState(() {});
+    });
     // TODO: implement initState
     super.initState();
   }

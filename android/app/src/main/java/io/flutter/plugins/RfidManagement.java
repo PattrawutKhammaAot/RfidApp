@@ -65,7 +65,9 @@ class ScanCallback implements IRfidCallback {
             public void run() {
                 if(isASCII){
                     final String asciiEPC = hexToAscii(EPC);
+                if(asciiEPC != null && !asciiEPC.isEmpty()){
                     sendEPCToFlutter( asciiEPC, strRSSI,isASCII);
+                }
                 }else{
                     sendEPCToFlutter( EPC, strRSSI,isASCII);
                 }
@@ -129,7 +131,7 @@ class ScanCallback implements IRfidCallback {
     private void sendEPCToFlutter(String epc,String rssi,boolean isASCII) {
         Log.d(TAG, "sendEPCToFlutter()  epc = " + epc + "  rssi = " + rssi + " isASCII = " + isASCII);
         Map<String, String> tagData = new HashMap<>();
-        tagData.put("epc", epc);
+        tagData.put("epc", epc.trim());
         tagData.put("rssi", rssi);
         channel.invokeMethod("onTagScanned", tagData);
     }
@@ -138,10 +140,14 @@ class ScanCallback implements IRfidCallback {
         channel.invokeMethod("Connection", status);
     }
     private String hexToAscii(String hexStr) {
-        StringBuilder output = new StringBuilder("");
+        StringBuilder output = new StringBuilder();
         for (int i = 0; i < hexStr.length(); i += 2) {
             String str = hexStr.substring(i, i + 2);
-            output.append((char) Integer.parseInt(str, 16));
+            int decimalValue = Integer.parseInt(str, 16);
+          
+            if (decimalValue >= 32 && decimalValue <= 126) {
+                output.append((char) decimalValue);
+            }
         }
         return output.toString();
     }

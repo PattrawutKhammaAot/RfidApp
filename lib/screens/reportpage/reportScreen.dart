@@ -301,7 +301,8 @@ class _ReportScreenState extends State<ReportScreen> {
                             child: CircularPercentIndicator(
                               radius: 45.0,
                               lineWidth: 8.0,
-                              percent: totalScanModel.totalMaster != 0
+                              percent: totalScanModel.totalMaster != 0 &&
+                                      totalScanModel.totalFound != 0
                                   ? (totalScanModel.totalMaster! -
                                           totalScanModel.totalFound!) /
                                       totalScanModel.totalMaster!

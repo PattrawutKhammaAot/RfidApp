@@ -15,7 +15,9 @@ import '../screens/reportpage/model/import_txt.dart';
 import 'table.dart';
 
 part 'database.g.dart';
+// dart run build_runner build  // สำหรับการสร้าง database.g.dart
 
+//    dart run build_runner watch   //
 // @DriftDatabase(
 //   // relative import for the drift file. Drift also supports `package:`
 //   // imports
@@ -76,6 +78,7 @@ class AppDb extends _$AppDb {
     try {
       if (model.isNotEmpty) {
         await delete(masterRfid).go();
+        await delete(tagRunningRfid).go();
         for (var item in model) {
           await into(masterRfid).insert(Master_rfidCompanion(
             rfid_tag: Value(item.rfidTag),
@@ -98,17 +101,30 @@ class AppDb extends _$AppDb {
     try {
       var result = await (select(masterRfid)
             ..where((tbl) => tbl.key_id.equals(model.key_id)))
-          .get();
-      final Master_rfidData? entries = result.isNotEmpty ? result.first : null;
+          .getSingleOrNull();
 
-      if (entries != null) {
+      if (result != null) {
         await update(masterRfid).replace(Master_rfidCompanion(
           key_id: Value(model.key_id),
           rfid_tag: Value(model.rfid_tag),
-          status: Value(entries.status),
-          created_at: Value(entries.created_at),
+          status: Value(result.status),
+          created_at: Value(result.created_at),
           updated_at: Value(DateTime.now()),
         ));
+        var obj = await (select(tagRunningRfid)
+              ..where((tbl) => tbl.rfid_tag.equals(model.rfid_tag!)))
+            .getSingleOrNull();
+        if (obj != null) {
+          await update(tagRunningRfid).replace(Tag_Running_RfidCompanion(
+            key_id: Value(obj.key_id),
+            rfid_tag: Value(model.rfid_tag),
+            status: Value(result.status),
+            rssi: Value(obj.rssi),
+            created_at: Value(obj.created_at),
+            updated_at: Value(DateTime.now()),
+          ));
+        }
+
         return true;
       }
       return false;
@@ -122,11 +138,9 @@ class AppDb extends _$AppDb {
     try {
       var result = await (select(masterRfid)
             ..where((tbl) => tbl.rfid_tag.equals(model.rfidTag!.trim())))
-          .get();
-      final Master_rfidData? entries = result.isNotEmpty ? result.first : null;
+          .getSingleOrNull();
 
-      print("Test: $entries");
-      if (entries == null) {
+      if (result == null) {
         await into(masterRfid).insert(Master_rfidCompanion(
           rfid_tag: Value(model.rfidTag),
           status: Value(null),
@@ -144,16 +158,23 @@ class AppDb extends _$AppDb {
 
   Future<bool> deleteMaster(int s) async {
     // Execute the query to check if the entry exists
-    var query =
-        await (select(masterRfid)..where((tbl) => tbl.key_id.equals(s))).get();
-    print("query: $query");
-
-    final Master_rfidData? entries = query.isNotEmpty ? query.first : null;
+    var dtoMaster = await (select(masterRfid)
+          ..where((tbl) => tbl.key_id.equals(s)))
+        .getSingleOrNull();
 
     // Check if the result is not empty
-    if (entries != null) {
+    if (dtoMaster != null) {
+      var dtoTag = await (select(tagRunningRfid)
+            ..where((tbl) => tbl.rfid_tag.equals(dtoMaster.rfid_tag!)))
+          .getSingleOrNull();
+      if (dtoTag != null) {
+        await (delete(tagRunningRfid)
+              ..where((tbl) => tbl.key_id.equals(dtoTag.key_id)))
+            .go();
+      }
+
       // If not empty, proceed to delete
-      return (delete(masterRfid)..where((tbl) => tbl.key_id.equals(s)))
+      return await (delete(masterRfid)..where((tbl) => tbl.key_id.equals(s)))
           .go()
           .then((value) => value == 1); // Returns true if one row is affected
     } else {
@@ -189,19 +210,21 @@ class AppDb extends _$AppDb {
   }
 
   Future<List<Master_rfidData>> getMasterAll() async {
-    await updateMaster();
-    return await (select(masterRfid)).get();
+    try {
+      await updateMaster();
+      return await (select(masterRfid)).get();
+    } catch (e, s) {
+      print("$e$s");
+      throw Exception();
+    }
   }
 
   //#region ************************** SUB_MATER *******************************
   Future<bool> scan_Rfid_Code(ScanRfidCodeModel req) async {
     try {
-      var resultRunning = await (select(tagRunningRfid)
+      var dto = await (select(tagRunningRfid)
             ..where((tbl) => tbl.rfid_tag.equals(req.rfidNumber!.trim())))
-          .get();
-
-      final Tag_Running_RfidData? dto =
-          resultRunning.isNotEmpty ? resultRunning.first : null;
+          .getSingleOrNull();
 
       if (dto != null) {
         if (dto.status == "Not Found" && req.statusRunning == "Found") {
@@ -249,6 +272,22 @@ class AppDb extends _$AppDb {
   }
 
   Future<bool> deleteRunningRfid(int id) async {
+    var result = await (select(tagRunningRfid)
+          ..where((tbl) => tbl.key_id.equals(id)))
+        .getSingleOrNull();
+    if (result != null) {
+      var objMaster = await (select(masterRfid)
+            ..where((tbl) => tbl.rfid_tag.equals(result.rfid_tag!)))
+          .getSingleOrNull();
+
+      if (objMaster != null) {
+        await update(masterRfid).replace(
+          Master_rfidCompanion(
+              key_id: Value(objMaster.key_id), status: Value("Not Found")),
+        );
+      }
+    }
+
     return (delete(tagRunningRfid)..where((tbl) => tbl.key_id.equals(id)))
         .go()
         .then((value) => value == 1);

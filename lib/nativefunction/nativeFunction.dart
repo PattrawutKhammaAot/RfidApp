@@ -101,4 +101,18 @@ class SDK_Function {
 
     return "Listening";
   }
+
+  String hexToAscii(String hexStr) {
+    StringBuffer output = StringBuffer();
+    for (int i = 0; i < hexStr.length; i += 2) {
+      String hexPair = hexStr.substring(i, i + 2);
+      int decimalValue = int.parse(hexPair, radix: 16);
+
+      // ตรวจสอบว่าค่าที่แปลงได้อยู่ในช่วง ASCII ที่สามารถพิมพ์ได้หรือไม่
+      if (decimalValue >= 32 && decimalValue <= 126) {
+        output.write(String.fromCharCode(decimalValue));
+      }
+    }
+    return output.toString();
+  }
 }
