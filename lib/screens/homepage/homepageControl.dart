@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:drift_db_viewer/drift_db_viewer.dart';
@@ -14,6 +15,7 @@ import 'package:rfid/screens/reportpage/reportScreen.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
 import 'package:rfid/screens/searchtag/serachtag_Screen.dart';
+import 'package:rfid/screens/settings/setting_Screen.dart';
 
 class HomePageControl extends StatefulWidget {
   const HomePageControl({super.key});
@@ -40,8 +42,8 @@ class _HomePageControlState extends State<HomePageControl> {
   @override
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
+      const AddRfidPage(),
       const SearchTagsScreen(),
-      AddRfidPage(),
       ScanScreen(
         onChange: (value) {
           setState(() {
@@ -53,6 +55,7 @@ class _HomePageControlState extends State<HomePageControl> {
       ReportScreen(
         receiveValue: sendValue,
       ),
+      const SettingScreen(),
     ];
     return Scaffold(
       appBar: AppBar(
@@ -73,20 +76,6 @@ class _HomePageControlState extends State<HomePageControl> {
             padding: const EdgeInsets.only(right: 20),
             child: GestureDetector(
               onTap: () async {
-                var currentPower = await SDK_Function.getPower();
-                modalPickerNumber(currentPower);
-              },
-              child: Icon(
-                Icons.settings,
-                color: whiteColor,
-                size: 30,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: GestureDetector(
-              onTap: () async {
                 exportTemplate();
               },
               child: Icon(
@@ -95,7 +84,7 @@ class _HomePageControlState extends State<HomePageControl> {
                 size: 30,
               ),
             ),
-          )
+          ),
         ],
       ),
       body: Center(
@@ -104,20 +93,24 @@ class _HomePageControlState extends State<HomePageControl> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Search Tags',
+            icon: Icon(Icons.ad_units),
+            label: 'Find Inventory',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.ad_units),
-            label: 'Master',
+            icon: Icon(Icons.list_alt),
+            label: 'Search',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Scan Tags',
+            label: 'Scan',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Report',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Setting',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -130,20 +123,11 @@ class _HomePageControlState extends State<HomePageControl> {
   }
 
   Future exportTemplate() async {
-    var data = 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-    data += 'EX|';
-
-    await exportTxt(data: data, fileName: "RFID_Template");
+    await exportTxt();
     EasyLoading.showSuccess("Export Template Success");
   }
 
-  Future<void> exportTxt({String? data, String? fileName}) async {
+  Future<void> exportTxt() async {
     var directory = await AndroidPathProvider.downloadsPath;
 
     var selectDirectory = directory;
@@ -153,63 +137,18 @@ class _HomePageControlState extends State<HomePageControl> {
     }
 
     ///storage/emulated/0/Download
-    var filename = fileName;
-    var pathFile = '$selectDirectory/$filename.txt';
+
+    var pathFile = '$selectDirectory/RFID_Template.txt';
     print(pathFile);
     var file = File(pathFile);
-    await file.writeAsString(data!);
-  }
+    var sink = file.openWrite();
+    sink.write(
+        '${Random().nextInt(10000)}${Random().nextInt(10000)}Example|\n');
+    for (var i = 0; i < 10; i++) {
+      sink.write(
+          '${Random().nextInt(10000)}${Random().nextInt(10000)}Example|\n');
+    }
 
-  void modalPickerNumber(dynamic power) {
-    // Mock data
-    List<int> numbers = List<int>.generate(33, (i) => i + 1);
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          child: Column(
-            children: <Widget>[
-              const SizedBox(height: 10, width: double.infinity),
-              const Center(
-                  child: Text(
-                "Select Power",
-                style: TextStyle(fontSize: 20),
-              )),
-              SizedBox(
-                height: 10,
-              ),
-              Text(
-                "Current Power : $power",
-                style: TextStyle(fontSize: 18),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8, left: 8),
-                child: Divider(
-                  color: Colors.black,
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  itemCount: numbers.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('Power : ${numbers[index]}'),
-                      onTap: () async {
-                        var result =
-                            await SDK_Function.setPower(numbers[index]);
-                        EasyLoading.showSuccess(result);
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    await sink.close();
   }
 }

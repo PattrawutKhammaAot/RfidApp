@@ -38,11 +38,13 @@ import com.ubx.usdk.rfid.RfidManager;
 public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     private MethodChannel channel;
     private RfidManager  mRfidManager;
+    private RfidManager  mRfidManager1;
     public static final String TAG = "usdk";
     public static final String DECODE_DATA_TAG = "com.example.app.DECODE_DATA";
     private ScanCallback callback;
     private Context context;
     boolean isASCII = false;
+    int lengthOfASCII = 11;
 
 
     @Override
@@ -50,10 +52,37 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
         channel = new MethodChannel(binding.getBinaryMessenger(), "com.example/customChannel");
         channel.setMethodCallHandler(this);
         IntentFilter filter = new IntentFilter();
-            initRfid(binding.getApplicationContext());
-        binding.getApplicationContext().registerReceiver(myDataReceiver, filter);
+        //initRfid(binding.getApplicationContext());
     }
+  
+        
+    
+    private void initRfid(Context context) {
+        try{
+            RFIDSDKManager.getInstance().init(new InitListener() {
+                @Override
+                public void onStatus(boolean status) {
+                    if (status) {
+                        Log.d(TAG, "initRfid()  success.");
+                        mRfidManager = RFIDSDKManager.getInstance().getRfidManager();
+                        callback = new ScanCallback();
+                        mRfidManager.registerCallback(callback);
+                    } else {
+                        Log.d(TAG, "initRfid  fail.");
+                    }
+                }
+               
+            });
 
+        }catch (Exception e){
+
+            Log.e(TAG, "Error in initRfid", e);
+
+        }
+
+    
+        
+    }
 
 class ScanCallback implements IRfidCallback {
     @Override
@@ -65,7 +94,7 @@ class ScanCallback implements IRfidCallback {
             public void run() {
                 if(isASCII){
                     final String asciiEPC = hexToAscii(EPC);
-                if(asciiEPC != null && !asciiEPC.isEmpty()){
+                if(asciiEPC != null && !asciiEPC.isEmpty() && asciiEPC.length() == lengthOfASCII){
                     sendEPCToFlutter( asciiEPC, strRSSI,isASCII);
                 }
                 }else{
@@ -107,26 +136,7 @@ class ScanCallback implements IRfidCallback {
         }
     };
 
-  
-        
-    
-    private void initRfid(Context context) {
-        RFIDSDKManager.getInstance().init(new InitListener() {
-            @Override
-            public void onStatus(boolean status) {
-                if (status) {
-                    Log.d(TAG, "initRfid()  success.");
-                    mRfidManager = RFIDSDKManager.getInstance().getRfidManager();
-                    callback = new ScanCallback();
-                    mRfidManager.registerCallback(callback);
-                } else {
-                    Log.d(TAG, "initRfid  fail.");
-                }
-            }
-           
-        });
-        
-    }
+
 
     private void sendEPCToFlutter(String epc,String rssi,boolean isASCII) {
         Log.d(TAG, "sendEPCToFlutter()  epc = " + epc + "  rssi = " + rssi + " isASCII = " + isASCII);
@@ -174,7 +184,7 @@ class ScanCallback implements IRfidCallback {
             result.success(mRfidManager.getOutputPower());
             break;
             case "SetPower":
-            int power = call.argument("power");
+            int power = Integer.parseInt(call.argument("power").toString());
             int isSuccess = mRfidManager.setOutputPower(power);
             if(isSuccess == 0){
                 result.success("Power set to " + power);
@@ -188,6 +198,13 @@ class ScanCallback implements IRfidCallback {
             break;
             case "GetASCII":
             result.success(isASCII);
+            break;
+            case "GetLengthASCII":
+            result.success(lengthOfASCII);
+            break;
+            case "SetLengthASCII":
+            lengthOfASCII = Integer.parseInt(call.argument("length").toString());
+            result.success("Success! Length set to " + lengthOfASCII);
             break;
 
             default:

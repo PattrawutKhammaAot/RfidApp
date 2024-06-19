@@ -8,6 +8,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:rfid/screens/scan/tableViewScan.dart';
 
 import '../blocs/scanrfid/models/ScanRfidCodeModel.dart';
 import '../blocs/scanrfid/models/importRfidCodeModel.dart';
@@ -33,7 +34,8 @@ part 'database.g.dart';
 // this annotation tells drift to prepare a database class that uses both of the
 // tables we just defined. We'll see how to use that database class in a moment.
 @DriftDatabase(
-    tables: [Master_rfid, Tag_Running_Rfid], views: [ViewDetail, ViewMaster])
+    tables: [Master_rfid, Tag_Running_Rfid, TempMasterRfid],
+    views: [ViewDetail, ViewMaster, ViewTempMaster])
 class AppDb extends _$AppDb {
   // AppDb(super.e);
 
@@ -112,8 +114,10 @@ class AppDb extends _$AppDb {
           updated_at: Value(DateTime.now()),
         ));
         var obj = await (select(tagRunningRfid)
-              ..where((tbl) => tbl.rfid_tag.equals(model.rfid_tag!)))
+              ..where((tbl) => tbl.rfid_tag.equals(result.rfid_tag!)))
             .getSingleOrNull();
+
+        print(obj);
         if (obj != null) {
           await update(tagRunningRfid).replace(Tag_Running_RfidCompanion(
             key_id: Value(obj.key_id),
@@ -211,6 +215,7 @@ class AppDb extends _$AppDb {
 
   Future<List<Master_rfidData>> getMasterAll() async {
     try {
+      await deleteMasterDuplicate();
       await updateMaster();
       return await (select(masterRfid)).get();
     } catch (e, s) {
@@ -219,9 +224,31 @@ class AppDb extends _$AppDb {
     }
   }
 
+  Future<void> deleteMasterDuplicate() async {
+    // Step 1: Fetch all entries
+    final allEntries = await select(masterRfid).get();
+
+// Step 2: Identify duplicates
+    final Map<String, List<Master_rfidData>> tagMap = {};
+    for (var entry in allEntries) {
+      tagMap.putIfAbsent(entry.rfid_tag!, () => []).add(entry);
+    }
+
+// Step 3: Delete the first duplicate
+    for (var entries in tagMap.values) {
+      if (entries.length > 1) {
+        // Assuming 'id' is the unique identifier and you have a delete method
+        await (delete(masterRfid)
+              ..where((tbl) => tbl.key_id.equals(entries.first.key_id)))
+            .go();
+      }
+    }
+  }
+
   //#region ************************** SUB_MATER *******************************
   Future<bool> scan_Rfid_Code(ScanRfidCodeModel req) async {
     try {
+      await deleteTagRunningDuplicate();
       var dto = await (select(tagRunningRfid)
             ..where((tbl) => tbl.rfid_tag.equals(req.rfidNumber!.trim())))
           .getSingleOrNull();
@@ -244,6 +271,13 @@ class AppDb extends _$AppDb {
             updated_at: Value(DateTime.now()),
           ));
           return true;
+        } else if (dto.status == "Not Found" &&
+            req.statusRunning == "Not Found") {
+          await update(tagRunningRfid).replace(Tag_Running_RfidCompanion(
+            key_id: Value(dto.key_id),
+            rssi: Value(req.rssi),
+            updated_at: Value(DateTime.now()),
+          ));
         }
       } else {
         await into(tagRunningRfid).insert(Tag_Running_RfidCompanion(
@@ -293,6 +327,28 @@ class AppDb extends _$AppDb {
         .then((value) => value == 1);
   }
 
+  Future<void> deleteTagRunningDuplicate() async {
+    print("object");
+    // Step 1: Fetch all entries
+    final allEntries = await select(tagRunningRfid).get();
+
+// Step 2: Identify duplicates
+    final Map<String, List<Tag_Running_RfidData>> tagMap = {};
+    for (var entry in allEntries) {
+      tagMap.putIfAbsent(entry.rfid_tag!, () => []).add(entry);
+    }
+
+// Step 3: Delete the first duplicate
+    for (var entries in tagMap.values) {
+      if (entries.length > 1) {
+        // Assuming 'id' is the unique identifier and you have a delete method
+        await (delete(tagRunningRfid)
+              ..where((tbl) => tbl.key_id.equals(entries.first.key_id)))
+            .go();
+      }
+    }
+  }
+
   //#region ************************** REPORT *******************************
   Future<int> totalMaster() async {
     // สร้าง query ที่นับจำนวนแถวทั้งหมดในตาราง masterRfid
@@ -313,6 +369,113 @@ class AppDb extends _$AppDb {
     } catch (e, s) {
       print("$e$s");
       throw Exception();
+    }
+  }
+
+  //#region ************************** TEMP MASTER *******************************
+  Future<List<TempMasterRfidData>> getAllTempMaster() async {
+    try {
+      return await (select(tempMasterRfid)).get();
+    } catch (e, s) {
+      print("$e$s");
+      throw Exception();
+    }
+  }
+
+  Future<bool> deleteTempMaster(int key_id) async {
+    return (delete(tempMasterRfid)..where((tbl) => tbl.key_id.equals(key_id)))
+        .go()
+        .then((value) => value == 1);
+  }
+
+  Future<bool> editTempMaster(TempMasterRfidData model) async {
+    print(model.key_id);
+    try {
+      var result = await (select(tempMasterRfid)
+            ..where((tbl) => tbl.key_id.equals(model.key_id)))
+          .getSingleOrNull();
+      print(result);
+
+      if (result != null) {
+        await update(tempMasterRfid).replace(TempMasterRfidCompanion(
+          key_id: Value(result.key_id),
+          rfid_tag: Value(model.rfid_tag),
+          status: Value("Not Found"),
+          rssi: Value(null),
+          created_at: Value(result.created_at),
+          updated_at: Value(DateTime.now()),
+        ));
+        return true;
+      }
+      return false;
+    } catch (e, s) {
+      print("$e$s");
+      return false;
+    }
+  }
+
+  Future<bool> clearAllTempMaster() async {
+    try {
+      await delete(tempMasterRfid).go();
+      return true;
+    } catch (e, s) {
+      print("$e$s");
+      return false;
+    }
+  }
+
+  Future<List<TempMasterRfidData>> insertOrUpdateTempMaster(
+      TempMasterRfidData model) async {
+    try {
+      var result = await (select(tempMasterRfid)
+            ..where((tbl) => tbl.rfid_tag.equals(model.rfid_tag!)))
+          .getSingleOrNull();
+      if (result == null) {
+        await into(tempMasterRfid).insert(TempMasterRfidCompanion(
+          rfid_tag: Value(model.rfid_tag),
+          status: Value("Not Found"),
+          rssi: Value(model.rssi),
+          created_at: Value(DateTime.now()),
+          updated_at: Value(null),
+        ));
+      } else {
+        await update(tempMasterRfid).replace(TempMasterRfidCompanion(
+          key_id: Value(result.key_id),
+          rfid_tag: Value(model.rfid_tag),
+          status: Value(result.status),
+          created_at: Value(result.created_at),
+          updated_at: Value(DateTime.now()),
+        ));
+      }
+
+      return await (select(tempMasterRfid)).get();
+    } catch (e, s) {
+      print("$e$s");
+      return [];
+    }
+  }
+
+  Future<List<TempMasterRfidData>> updateTempMaster(
+      TempMasterRfidData model) async {
+    try {
+      var result = await (select(tempMasterRfid)
+            ..where((tbl) => tbl.rfid_tag.equals(model.rfid_tag!)))
+          .getSingleOrNull();
+      if (result != null) {
+        await update(tempMasterRfid).replace(TempMasterRfidCompanion(
+          key_id: Value(result.key_id),
+          rfid_tag: Value(result.rfid_tag),
+          status: Value(model.status),
+          rssi: Value(model.rssi),
+          created_at: Value(result.created_at),
+          updated_at: Value(DateTime.now()),
+        ));
+      }
+
+      return await (select(tempMasterRfid)).get();
+    } catch (e, s) {
+      print("$e$s");
+      return [];
     }
   }
 

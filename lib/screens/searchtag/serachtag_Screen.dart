@@ -12,6 +12,8 @@ import 'package:rfid/app.dart';
 import 'package:rfid/blocs/search_rfid/models/search_rfid_model.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
 import 'package:rfid/database/database.dart';
+import 'package:rfid/main.dart';
+import 'package:rfid/nativefunction/nativeFunction.dart';
 
 class SearchTagsScreen extends StatefulWidget {
   const SearchTagsScreen({super.key});
@@ -30,14 +32,17 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
   List<Tag_Running_RfidData> temp_itemModel = [];
   @override
   void initState() {
-    BlocProvider.of<SearchRfidBloc>(context).add(
-      SerachEvent(''),
-    );
-    focusNode.requestFocus();
-    Future.delayed(Duration(milliseconds: 500), () async {
-      SystemChannels.textInput.invokeMethod('TextInput.hide');
-      setState(() {});
+    appDb.deleteTagRunningDuplicate().then((value) {
+      BlocProvider.of<SearchRfidBloc>(context).add(
+        SerachEvent(''),
+      );
+      focusNode.requestFocus();
+      Future.delayed(Duration(milliseconds: 500), () async {
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+        setState(() {});
+      });
     });
+
     // TODO: implement initState
     super.initState();
   }
@@ -58,7 +63,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
         var formatter = DateFormat('dd_MM_yyyy_HH_mm_ss');
         var formattedDate = formatter.format(now);
 
-        var pathFile = '$selectDirectory/rfid_$formattedDate.txt';
+        var pathFile = '$selectDirectory/st_rfid_$formattedDate.txt';
         var file = File(pathFile);
         var sink = file.openWrite();
         sink.write('tag|Rssi|status\n');

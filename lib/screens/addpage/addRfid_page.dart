@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 
+import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/app.dart';
 import 'package:rfid/blocs/master/master_rfid_bloc.dart';
+import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
 import 'package:rfid/main.dart';
 import 'package:rfid/nativefunction/nativeFunction.dart';
 
@@ -24,16 +29,17 @@ class AddRfidPage extends StatefulWidget {
 class _AddRfidPageState extends State<AddRfidPage> {
   FocusNode focusNode = FocusNode();
   TextEditingController searchController = TextEditingController();
-  List<Master_rfidData> itemList = [];
-  List<Master_rfidData> temp_itemList = [];
+  List<TempMasterRfidData> itemList = [];
+  List<TempMasterRfidData> temp_itemList = [];
   bool isScanning = false;
+  bool isFilter = false;
 
   @override
   void initState() {
     SDK_Function.setASCII(true);
     focusNode.requestFocus();
-    BlocProvider.of<MasterRfidBloc>(context).add(
-      GetMasterRfidEvent(),
+    BlocProvider.of<TempMasterBloc>(context).add(
+      GetTempMasterEvent(),
     );
     Future.delayed(Duration(milliseconds: 500), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
@@ -44,8 +50,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
   }
 
   @override
-  void dispose() {
-    print("Destroyed");
+  void dispose() async {
     SDK_Function.setASCII(false);
     // TODO: implement dispose
     super.dispose();
@@ -56,43 +61,49 @@ class _AddRfidPageState extends State<AddRfidPage> {
     return KeyboardListener(
       focusNode: FocusNode(),
       onKeyEvent: (e) async {
-        print(e);
-        if (e is KeyDownEvent && e.physicalKey == PhysicalKeyboardKey.enter) {
-          await SDK_Function.scan(true);
-          isScanning = true;
+        const customKeyId = 0x110000020b;
+        if (e is KeyDownEvent) {
+          if (e.logicalKey.keyId == customKeyId) {
+            await SDK_Function.scan(true);
+            isScanning = true;
+          } else {
+            await SDK_Function.scan(true);
+            isScanning = true;
+          }
+
           setState(() {});
-        } else if (e is KeyUpEvent &&
-            e.physicalKey == PhysicalKeyboardKey.enter) {
-          await SDK_Function.scan(false);
-          isScanning = false;
+        } else if (e is KeyUpEvent) {
+          if (e.logicalKey.keyId == customKeyId) {
+            await SDK_Function.scan(false);
+            isScanning = false;
+          } else {
+            await SDK_Function.scan(false);
+            isScanning = false;
+          }
           setState(() {});
         }
       },
       child: MultiBlocListener(
         listeners: [
-          BlocListener<MasterRfidBloc, MasterRfidState>(
+          BlocListener<TempMasterBloc, TempMasterState>(
               listener: (context, state) async {
-            if (state.status == FetchStatus.fetching) {}
-            if (state.status == FetchStatus.saved) {
-              setState(() {
-                itemList = state.data!;
-              });
-            }
-            if (state.status == FetchStatus.searchSuccess) {
+            print(state.status);
+            if (state.status == FetchStatus.success) {
               itemList = state.data!;
-
-              setState(() {});
-            }
-            if (state.status == FetchStatus.importFinish) {
               temp_itemList = itemList;
               setState(() {});
-              BlocProvider.of<MasterRfidBloc>(context).add(
-                GetMasterRfidEvent(),
-              );
             }
-            if (state.status == FetchStatus.failed) {}
+            if (state.status == FetchStatus.saved) {
+              context.read<TempMasterBloc>().add(GetTempMasterEvent());
+            }
             if (state.status == FetchStatus.deleteSuccess) {
-              EasyLoading.showSuccess("Delete Success");
+              print("object");
+              context.read<TempMasterBloc>().add(GetTempMasterEvent());
+            }
+            if (state.status == FetchStatus.failed) {
+              itemList = [];
+              temp_itemList = itemList;
+              setState(() {});
             }
           })
         ],
@@ -124,30 +135,148 @@ class _AddRfidPageState extends State<AddRfidPage> {
                   controller: searchController,
                   focusNode: focusNode,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Search / Add RFID Tag',
-                  ),
+                      border: OutlineInputBorder(),
+                      hintText: 'Add RFID ',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add_circle),
+                        onPressed: () {
+                          if (searchController.text.isNotEmpty) {
+                            if (itemList
+                                .where((qry) =>
+                                    qry.rfid_tag ==
+                                    searchController.text.trim().toUpperCase())
+                                .isNotEmpty) {
+                              EasyLoading.showError("Duplicate Rfid");
+                            } else {
+                              context.read<TempMasterBloc>().add(
+                                  AddTempMasterEvent(TempMasterRfidData(
+                                      key_id: 0,
+                                      rfid_tag: searchController.text
+                                          .trim()
+                                          .toUpperCase(),
+                                      status: "Not Found",
+                                      created_at: DateTime.now())));
+                            }
+
+                            searchController.clear();
+                            focusNode.requestFocus();
+                          }
+
+                          setState(() {});
+                        },
+                      )),
                   onChanged: (value) {
-                    if (value.length > 1) {
-                      context
-                          .read<MasterRfidBloc>()
-                          .add(SearchMasterEvent(searchController.text.trim()));
-                    } else if (value.length == 0) {
-                      context.read<MasterRfidBloc>().add(SearchMasterEvent(''));
+                    if (value.isNotEmpty) {
+                      itemList = temp_itemList
+                          .where((element) =>
+                              element.rfid_tag!.contains(value.toUpperCase()))
+                          .toList();
+                      setState(() {});
+                    } else {
+                      itemList = temp_itemList;
+                      setState(() {});
                     }
                   },
                   onSubmitted: (value) async {
                     if (value.isNotEmpty) {
-                      await onEventScan(searchController.text.trim(), "0");
+                      if (itemList
+                          .where((qry) =>
+                              qry.rfid_tag == value.trim().toUpperCase())
+                          .isNotEmpty) {
+                        EasyLoading.showError("Duplicate Rfid");
+                      } else {
+                        context.read<TempMasterBloc>().add(AddTempMasterEvent(
+                            TempMasterRfidData(
+                                key_id: 0,
+                                rfid_tag: value.trim().toUpperCase(),
+                                status: "Not Found",
+                                rssi: null,
+                                created_at: DateTime.now())));
+                      }
+
                       searchController.clear();
                       focusNode.requestFocus();
                     }
                   },
                 ),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (itemList.isNotEmpty) {
+                        await exportDataToTxt();
+                      } else {
+                        EasyLoading.showError("No data to export");
+                      }
+                    },
+                    child: Text(
+                      "Export Data",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<TempMasterBloc>()
+                          .add(ClearTempMasterEvent());
+                    },
+                    child: Text(
+                      "Clear All",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.orange)),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        isFilter = !isFilter;
+                        if (isFilter) {
+                          itemList.sort((a, b) {
+                            int? rssiA = int.tryParse(a.rssi ?? "0");
+                            int? rssiB = int.tryParse(b.rssi ?? "0");
+                            return rssiA!.compareTo(rssiB!);
+                          });
+
+                          // do something
+                        } else {
+                          itemList.sort((a, b) {
+                            int? rssiA = int.tryParse(a.rssi ?? "0");
+                            int? rssiB = int.tryParse(b.rssi ?? "0");
+                            return rssiB!.compareTo(rssiA!);
+                          });
+
+                          // do something
+                        }
+                        setState(() {});
+                      },
+                      icon: CircleAvatar(
+                        backgroundColor: Colors.blueAccent,
+                        child: Icon(
+                          isFilter ? Icons.arrow_downward : Icons.arrow_upward,
+                          color: Colors.white,
+                        ),
+                      ))
+                ],
+              ),
               FutureBuilder(
                   future: SDK_Function.setTagScannedListener((epc, dbm) async {
-                await onEventScan(epc.trim(), dbm.trim());
+                if (itemList.isNotEmpty) {
+                  if (itemList
+                      .where((qry) => qry.rfid_tag == epc.trim())
+                      .isNotEmpty) {
+                    context.read<TempMasterBloc>().add(UpdateTempMasterEvent(
+                        TempMasterRfidData(
+                            key_id: 0,
+                            rfid_tag: epc.trim(),
+                            status: "Found",
+                            rssi: dbm.trim(),
+                            updated_at: DateTime.now())));
+                  }
+                }
               }), builder: (context, snapshot) {
                 return itemList.isNotEmpty
                     ? Expanded(
@@ -173,7 +302,8 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                       Future.delayed(
                                           Duration(milliseconds: 500),
                                           () async {
-                                        itemList = await appDb.getMasterAll();
+                                        itemList =
+                                            await appDb.getAllTempMaster();
                                         temp_itemList = itemList;
                                         setState(() {});
                                       });
@@ -194,8 +324,8 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                     borderRadius: BorderRadius.circular(12),
                                     spacing: 1,
                                     onPressed: (BuildContext context) {
-                                      context.read<MasterRfidBloc>().add(
-                                          DeleteMasterRfidEvent(
+                                      context.read<TempMasterBloc>().add(
+                                          DeleteTempMasterEvent(
                                               itemList[index].key_id));
                                       itemList.removeAt(index);
                                       // context
@@ -225,15 +355,35 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'RFID Tag : ${itemList[index].rfid_tag}',
-                                          style: TextStyle(color: Colors.white),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                'RFID Tag : ${itemList[index].rfid_tag}',
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            Text(
+                                              itemList[index].rssi != null
+                                                  ? 'Rssi: -${itemList[index].rssi} dBm'
+                                                  : "Rssi: N/A",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ],
                                         ),
                                         SizedBox(
                                           height: 5,
                                         ),
                                         Text(
-                                            'Created : ${DateFormat('dd-MM-yyyy').format(itemList[index].created_at!)}',
+                                            'Created : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].created_at!)}',
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         Row(
@@ -242,7 +392,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                           children: [
                                             itemList[index].updated_at != null
                                                 ? Text(
-                                                    'Updated : ${DateFormat('dd-MM-yyyy').format(itemList[index].updated_at!)}',
+                                                    'Updated : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].updated_at!)}',
                                                     style: TextStyle(
                                                         color: Colors.white))
                                                 : SizedBox.fromSize(),
@@ -270,24 +420,6 @@ class _AddRfidPageState extends State<AddRfidPage> {
         ),
       ),
     );
-  }
-
-  Future onEventScan(String _controller, String rssi) async {
-    try {
-      if (_controller.isNotEmpty) {
-        if (temp_itemList
-            .where((element) => element.rfid_tag == _controller.trim())
-            .isEmpty) {
-          context
-              .read<MasterRfidBloc>()
-              .add(AddMasterEvent(ImportRfidCodeModel(rfidTag: _controller)));
-        }
-      }
-    } catch (e, s) {
-      print("$e$s");
-    }
-
-    setState(() {});
   }
 
   // สร้างฟังก์ชันที่แสดง AlertDialog สำหรับกรอก new Rfid และมีปุ่ม Save และ Close
@@ -334,10 +466,11 @@ class _AddRfidPageState extends State<AddRfidPage> {
                       .isNotEmpty) {
                     EasyLoading.showError("Duplicate Rfid");
                   } else {
-                    context.read<MasterRfidBloc>().add(EditMasterEvent(
-                        Master_rfidData(
+                    context.read<TempMasterBloc>().add(EditTempMasterEvent(
+                        TempMasterRfidData(
                             key_id: key_id,
-                            rfid_tag: rfidController.text.trim())));
+                            rfid_tag:
+                                rfidController.text.trim().toUpperCase())));
                     Navigator.of(context).pop();
                     completer.complete();
                   }
@@ -367,5 +500,42 @@ class _AddRfidPageState extends State<AddRfidPage> {
       },
     );
     await completer.future;
+  }
+
+  Future<void> exportDataToTxt() async {
+    try {
+      await Permission.manageExternalStorage.request();
+      if (await Permission.manageExternalStorage.request().isGranted) {
+        var directory = await AndroidPathProvider.downloadsPath;
+
+        var selectDirectory = directory;
+        var directoryExists = await Directory(selectDirectory).exists();
+        if (!directoryExists) {
+          await Directory(selectDirectory).create(recursive: true);
+        }
+
+        var now = DateTime.now();
+        var formatter = DateFormat('dd_MM_yyyy_HH_mm_ss');
+        var formattedDate = formatter.format(now);
+
+        var pathFile = '$selectDirectory/fi_rfid_$formattedDate.txt';
+        var file = File(pathFile);
+        var sink = file.openWrite();
+        sink.write('tag|Rssi|status|created|updated\n');
+        for (var item in itemList) {
+          sink.write(
+              '${item.rfid_tag}|-${item.rssi} dBm|${item.status}|${item.created_at}|${item.updated_at ?? "N/A"}\n');
+        }
+
+        await sink.close();
+        EasyLoading.showSuccess("Export Data Success");
+        print(pathFile);
+      } else {
+        openAppSettings();
+      }
+      print("object");
+    } catch (e, s) {
+      print("$e$s");
+    }
   }
 }

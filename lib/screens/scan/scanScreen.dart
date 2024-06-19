@@ -50,9 +50,11 @@ class _ScanScreenState extends State<ScanScreen> {
     );
     focusNode.requestFocus();
     zincDataSource = ZincDataSource(process: []);
-    SDK_Function.getASCII().then((value) {
-      isASCII = value;
-      setState(() {});
+    Future.delayed(Duration(milliseconds: 500), () {
+      SDK_Function.getASCII().then((value) {
+        isASCII = value;
+        setState(() {});
+      });
     });
 
     super.initState();
@@ -60,14 +62,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   void dispose() {
-    focusNode.dispose();
     // TODO: implement dispose
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    focusNode.requestFocus();
     return MultiBlocListener(
       listeners: [
         BlocListener<ScanrfidCodeBloc, ScanrfidCodeState>(
@@ -89,15 +89,27 @@ class _ScanScreenState extends State<ScanScreen> {
           body: KeyboardListener(
               autofocus: true,
               focusNode: focusNode,
-              onKeyEvent: (event) async {
-                print(event);
-                if (event is KeyDownEvent) {
-                  await SDK_Function.scan(true);
-                  isScanning = true;
+              onKeyEvent: (e) async {
+                print(e);
+                const customKeyId = 0x110000020b;
+                if (e is KeyDownEvent) {
+                  if (e.logicalKey.keyId == customKeyId) {
+                    await SDK_Function.scan(true);
+                    isScanning = true;
+                  } else {
+                    await SDK_Function.scan(true);
+                    isScanning = true;
+                  }
+
                   setState(() {});
-                } else if (event is KeyUpEvent) {
-                  await SDK_Function.scan(false);
-                  isScanning = false;
+                } else if (e is KeyUpEvent) {
+                  if (e.logicalKey.keyId == customKeyId) {
+                    await SDK_Function.scan(false);
+                    isScanning = false;
+                  } else {
+                    await SDK_Function.scan(false);
+                    isScanning = false;
+                  }
                   setState(() {});
                 }
               },
@@ -439,7 +451,7 @@ class _ScanScreenState extends State<ScanScreen> {
         var formatter = DateFormat('dd_MM_yyyy_HH_mm_ss');
         var formattedDate = formatter.format(now);
 
-        var pathFile = '$selectDirectory/rfid_scan_$formattedDate.txt';
+        var pathFile = '$selectDirectory/rfid_scanned_$formattedDate.txt';
         var file = File(pathFile);
         var sink = file.openWrite();
         sink.write('tag|Rssi|status\n');

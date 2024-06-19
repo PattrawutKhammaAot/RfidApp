@@ -81,6 +81,29 @@ class SDK_Function {
     }
   }
 
+  static Future<dynamic> getLengthASCII() async {
+    try {
+      dynamic result = await platform.invokeMethod('GetLengthASCII');
+
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<dynamic> setLengthASCII(int setLengthASCII) async {
+    try {
+      dynamic result = await platform
+          .invokeMethod('SetLengthASCII', {"length": setLengthASCII});
+      return result;
+    } catch (e, s) {
+      print(e);
+      print(s);
+      return 'Error';
+    }
+  }
+
   static Future<String> setTagScannedListener(
       Function(String epc, String rssi) onTagScanned) async {
     try {

@@ -12,6 +12,7 @@ import 'package:rfid/blocs/scanrfid/models/importRfidCodeModel.dart';
 import 'package:rfid/blocs/scanrfid/models/total_scan_Model.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/main.dart';
 import 'package:rfid/screens/reportpage/model/import_txt.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -40,12 +41,14 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   void initState() {
+    appDb.deleteTagRunningDuplicate().then((value) {
+      print("Delete Tag Running");
+      BlocProvider.of<ScanrfidCodeBloc>(context).add(
+        GetTotoalScanEvent(),
+      );
+    });
     // TODO: implement initState
     super.initState();
-
-    BlocProvider.of<ScanrfidCodeBloc>(context).add(
-      GetTotoalScanEvent(),
-    );
   }
 
   Future<void> _importCSV() async {

@@ -6,6 +6,7 @@ import 'package:rfid/blocs/master/master_rfid_bloc.dart';
 import 'package:rfid/blocs/network/bloc/network_bloc.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
+import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
 import 'package:rfid/screens/homepage/homepageControl.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
 
@@ -77,6 +78,9 @@ class _AppState extends State<App> {
             ),
             BlocProvider<MasterRfidBloc>(
               create: (_) => MasterRfidBloc(),
+            ),
+            BlocProvider<TempMasterBloc>(
+              create: (_) => TempMasterBloc(),
             ),
           ], child: AppView());
         } else {
