@@ -328,23 +328,23 @@ class AppDb extends _$AppDb {
   }
 
   Future<void> deleteTagRunningDuplicate() async {
-    print("object");
     // Step 1: Fetch all entries
     final allEntries = await select(tagRunningRfid).get();
-
+    if (allEntries.isNotEmpty) {
 // Step 2: Identify duplicates
-    final Map<String, List<Tag_Running_RfidData>> tagMap = {};
-    for (var entry in allEntries) {
-      tagMap.putIfAbsent(entry.rfid_tag!, () => []).add(entry);
-    }
+      final Map<String, List<Tag_Running_RfidData>> tagMap = {};
+      for (var entry in allEntries) {
+        tagMap.putIfAbsent(entry.rfid_tag!, () => []).add(entry);
+      }
 
 // Step 3: Delete the first duplicate
-    for (var entries in tagMap.values) {
-      if (entries.length > 1) {
-        // Assuming 'id' is the unique identifier and you have a delete method
-        await (delete(tagRunningRfid)
-              ..where((tbl) => tbl.key_id.equals(entries.first.key_id)))
-            .go();
+      for (var entries in tagMap.values) {
+        if (entries.length > 1) {
+          // Assuming 'id' is the unique identifier and you have a delete method
+          await (delete(tagRunningRfid)
+                ..where((tbl) => tbl.key_id.equals(entries.first.key_id)))
+              .go();
+        }
       }
     }
   }

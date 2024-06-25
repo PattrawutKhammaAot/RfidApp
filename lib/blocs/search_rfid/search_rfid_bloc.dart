@@ -39,7 +39,7 @@ class SearchRfidBloc extends Bloc<SearchRfidEvent, SearchRfidState> {
         var result = await deleteRfidFetch(event.key_id);
         if (result.statusCode!) {
           emit(state.copyWith(
-              status: FetchStatus.saved, dataDefaultResponse: result));
+              status: FetchStatus.deleteSuccess, dataDefaultResponse: result));
         } else {
           emit(state.copyWith(
               status: FetchStatus.failed, message: result.message));

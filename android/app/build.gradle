@@ -78,5 +78,6 @@ dependencies {
     // implementation files('libs/platform_sdk_v4.1.0326.jar')
     // implementation files('libs/USDKLibrary-v2.3.0214.aar')
     implementation files('libs/URFIDLibrary-v2.4.0125.jar')
+    implementation files('libs/platform_sdk_v4.1.0326.jar')
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

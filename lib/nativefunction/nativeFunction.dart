@@ -125,6 +125,28 @@ class SDK_Function {
     return "Listening";
   }
 
+  static Future<dynamic> closeScanner() async {
+    try {
+      dynamic result = await platform.invokeMethod('closeScanner');
+
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
+  static Future<dynamic> openScanner() async {
+    try {
+      dynamic result = await platform.invokeMethod('openScanner');
+
+      return result;
+    } catch (e) {
+      print('Error123: $e');
+      return 'Error';
+    }
+  }
+
   String hexToAscii(String hexStr) {
     StringBuffer output = StringBuffer();
     for (int i = 0; i < hexStr.length; i += 2) {

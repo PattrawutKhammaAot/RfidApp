@@ -53,7 +53,7 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
         emit(state.copyWith(status: FetchStatus.sending));
 
         var responseData = await sendRfidFetch(event.rfidCode);
-        if (responseData.statusCode ?? false) {
+        if (responseData.statusCode!) {
           emit(state.copyWith(
             status: FetchStatus.sendSuccess,
             message: responseData.message,
@@ -74,7 +74,7 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
         emit(state.copyWith(status: FetchStatus.fetching));
 
         var responseData = await getTotalScanFetching();
-        if (responseData.statusCode ?? false) {
+        if (responseData.statusCode!) {
           emit(state.copyWith(
               status: FetchStatus.success, totalScanModel: responseData));
         } else {
@@ -93,7 +93,7 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
 
         var responseData =
             await importRfidFetching(event.rfidItemListToJsonModel);
-        if (responseData.statusCode ?? false) {
+        if (responseData.statusCode!) {
           emit(state.copyWith(
               status: FetchStatus.importFinish, message: responseData.message));
         } else {

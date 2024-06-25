@@ -122,3 +122,22 @@ com/urovo/utils/ThreadPool$1.class
 com/urovo/utils/ThreadPool.class
 com/urovo/utils/tlv/TLV.class
 com/urovo/utils/tlv/TLVTools.class
+
+
+// PDA NOT RFID
+android.content.pm.IPackageDeleteObserver$Stub
+android.content.pm.IPackageDeleteObserver
+android.content.pm.IPackageInstallObserver$Stub
+android.content.pm.IPackageInstallObserver
+android.device.ScanManager
+android.device.SettingProperty
+android.device.UFSManager
+android.device.scanner.configuration.Constants$Symbology
+android.device.scanner.configuration.Constants
+android.device.scanner.configuration.PropertyID
+android.device.scanner.configuration.Symbology
+android.device.scanner.configuration.Triggering
+android.device.sdk.BuildConfig
+android.os.IInputActionListener$Stub$Proxy
+android.os.IInputActionListener$Stub
+android.os.IInputActionListener

@@ -215,7 +215,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                     onPressed: (BuildContext context) {
                                       context.read<SearchRfidBloc>().add(
                                           DeleteRfidEvent(
-                                              itemModel[index].key_id!));
+                                              itemModel[index].key_id));
                                       itemModel.removeAt(index);
 
                                       setState(() {});

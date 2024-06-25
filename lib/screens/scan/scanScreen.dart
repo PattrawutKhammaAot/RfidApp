@@ -90,7 +90,6 @@ class _ScanScreenState extends State<ScanScreen> {
               autofocus: true,
               focusNode: focusNode,
               onKeyEvent: (e) async {
-                print(e);
                 const customKeyId = 0x110000020b;
                 if (e is KeyDownEvent) {
                   if (e.logicalKey.keyId == customKeyId) {

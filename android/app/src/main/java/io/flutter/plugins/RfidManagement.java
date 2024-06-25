@@ -28,31 +28,39 @@ import com.ubx.usdk.rfid.aidl.IRfidCallback;
 import android.net.ConnectivityManager;
 import com.ubx.usdk.USDKManager;
 import com.ubx.usdk.listener.InitListener;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
-
-
 import com.ubx.usdk.rfid.RfidManager;
+import android.device.ScanManager;
+
+//Sound
+import io.flutter.plugins.SoundTool;
 
 public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     private MethodChannel channel;
     private RfidManager  mRfidManager;
     private RfidManager  mRfidManager1;
+    private ScanManager mScanManager;
     public static final String TAG = "usdk";
     public static final String DECODE_DATA_TAG = "com.example.app.DECODE_DATA";
     private ScanCallback callback;
     private Context context;
+    
     boolean isASCII = false;
     int lengthOfASCII = 11;
-
+    private SoundTool soundTool;
 
     @Override
     public void onAttachedToEngine(FlutterPluginBinding binding) {
         channel = new MethodChannel(binding.getBinaryMessenger(), "com.example/customChannel");
         channel.setMethodCallHandler(this);
         IntentFilter filter = new IntentFilter();
-        //initRfid(binding.getApplicationContext());
+        mScanManager = new ScanManager();
+     
+        initRfid(binding.getApplicationContext());
+
     }
   
         
@@ -67,12 +75,15 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                         mRfidManager = RFIDSDKManager.getInstance().getRfidManager();
                         callback = new ScanCallback();
                         mRfidManager.registerCallback(callback);
+                        soundTool = SoundTool.getInstance(context);
+                        
                     } else {
                         Log.d(TAG, "initRfid  fail.");
                     }
                 }
                
             });
+        
 
         }catch (Exception e){
 
@@ -94,11 +105,13 @@ class ScanCallback implements IRfidCallback {
             public void run() {
                 if(isASCII){
                     final String asciiEPC = hexToAscii(EPC);
-                if(asciiEPC != null && !asciiEPC.isEmpty() && asciiEPC.length() == lengthOfASCII){
-                    sendEPCToFlutter( asciiEPC, strRSSI,isASCII);
-                }
+                    if(asciiEPC != null && !asciiEPC.isEmpty()){
+                        String extractedEPC = asciiEPC.substring(0, Math.min(asciiEPC.length(), lengthOfASCII));
+                        sendEPCToFlutter(extractedEPC, strRSSI, isASCII);
+                    }
                 }else{
                     sendEPCToFlutter( EPC, strRSSI,isASCII);
+                    
                 }
               
             }
@@ -144,6 +157,7 @@ class ScanCallback implements IRfidCallback {
         tagData.put("epc", epc.trim());
         tagData.put("rssi", rssi);
         channel.invokeMethod("onTagScanned", tagData);
+        soundTool.playBeep(); 
     }
 
     private void sendConnection(boolean status) {
@@ -207,6 +221,15 @@ class ScanCallback implements IRfidCallback {
             result.success("Success! Length set to " + lengthOfASCII);
             break;
 
+            case "OpenScanner":
+            mScanManager.openScanner();
+            result.success("Scanner opened");
+            break;
+            case "CloseScanner":
+            mScanManager.closeScanner();
+            result.success("Scanner closed");
+            break;
+
             default:
                 result.notImplemented();
                 break;
@@ -218,6 +241,8 @@ class ScanCallback implements IRfidCallback {
         if(mRfidManager != null){
             mRfidManager.release();
             mRfidManager = null;
+            mScanManager.openScanner();
+            mScanManager = null;
             Log.d(TAG,"Release RFID");
         }
        
