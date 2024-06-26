@@ -7,6 +7,7 @@ import 'package:rfid/blocs/network/bloc/network_bloc.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
 import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
+import 'package:rfid/nativefunction/nativeFunction.dart';
 import 'package:rfid/screens/homepage/homepageControl.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
 
@@ -35,29 +36,56 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   Future<void> requestStoragePermission() async {
     try {
       var status = await Permission.manageExternalStorage.status;
       if (!status.isGranted) {
-        // ขออนุญาต
         if (await Permission.manageExternalStorage.request().isGranted) {
-          // ได้รับอนุญาต
-          print("Manage external storage permission granted.");
         } else {
-          // ไม่ได้รับอนุญาต
-          print("Manage external storage permission denied.");
           openAppSettings();
         }
-      } else {
-        // มีสิทธิ์แล้ว
-        print("Manage external storage permission already granted.");
       }
     } catch (e, s) {
       print("$e$s");
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    print("State: $state");
+    switch (state) {
+      case AppLifecycleState.paused:
+        await SDK_Function.openScanner();
+        // App is in background
+        break;
+      case AppLifecycleState.resumed:
+        await SDK_Function.closeScanner();
+        // App is resumed
+        break;
+      case AppLifecycleState.inactive:
+        // App is inactive
+        break;
+      case AppLifecycleState.detached:
+        // App is detached
+        break;
+      case AppLifecycleState.hidden:
+      // TODO: Handle this case.
+    }
+  }
   // @override
   // void initState() {
   //   requestStoragePermission();

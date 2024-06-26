@@ -59,7 +59,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
         IntentFilter filter = new IntentFilter();
         mScanManager = new ScanManager();
      
-        //initRfid(binding.getApplicationContext());
+        initRfid(binding.getApplicationContext());
 
     }
   
