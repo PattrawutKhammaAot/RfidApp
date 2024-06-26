@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
@@ -39,20 +40,26 @@ class _ScanScreenState extends State<ScanScreen> {
 
   List<tempRfidItemList> _addTable = [];
   FocusNode focusNode = FocusNode();
+  FocusNode fakefocusNode = FocusNode();
+  TextEditingController _controller = TextEditingController();
 
   bool isScanning = false;
   bool isASCII = false;
+  bool isHide = true;
 
   @override
   void initState() {
     BlocProvider.of<ScanrfidCodeBloc>(context).add(
       GetRfidItemListEvent(),
     );
-    focusNode.requestFocus();
+
     zincDataSource = ZincDataSource(process: []);
     Future.delayed(Duration(milliseconds: 500), () {
       SDK_Function.getASCII().then((value) {
         isASCII = value;
+        focusNode.requestFocus();
+        fakefocusNode.requestFocus();
+        isHide = false;
         setState(() {});
       });
     });
@@ -72,13 +79,13 @@ class _ScanScreenState extends State<ScanScreen> {
       listeners: [
         BlocListener<ScanrfidCodeBloc, ScanrfidCodeState>(
             listener: (context, state) async {
-          print(state.status);
           if (state.status == FetchStatus.fetching) {}
           if (state.status == FetchStatus.success) {
             if (state.data != null) {
               setState(() {
                 itemList = state.data!;
                 focusNode.requestFocus();
+                fakefocusNode.requestFocus();
               });
             }
           }
@@ -87,9 +94,10 @@ class _ScanScreenState extends State<ScanScreen> {
       ],
       child: Scaffold(
           body: KeyboardListener(
-              autofocus: true,
               focusNode: focusNode,
+              autofocus: true,
               onKeyEvent: (e) async {
+                print("object");
                 const customKeyId = 0x110000020b;
                 if (e is KeyDownEvent) {
                   if (e.logicalKey.keyId == customKeyId) {
@@ -114,6 +122,18 @@ class _ScanScreenState extends State<ScanScreen> {
               },
               child: Column(
                 children: [
+                  Visibility(
+                      visible: isHide,
+                      child: Center(
+                        child: SizedBox(
+                          height: 1,
+                          width: 1,
+                          child: TextFormField(
+                            focusNode: fakefocusNode,
+                            controller: _controller,
+                          ),
+                        ),
+                      )),
                   SizedBox(
                     height: 0,
                   ),

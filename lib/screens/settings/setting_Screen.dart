@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../nativefunction/nativeFunction.dart';
 
@@ -13,6 +14,14 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   dynamic currentPower;
   dynamic currentLength;
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
   @override
   void initState() {
     SDK_Function.getPower().then((value) {
@@ -24,8 +33,17 @@ class _SettingScreenState extends State<SettingScreen> {
       currentLength = value;
       setState(() {});
     });
+    _initPackageInfo().then((value) {
+      _packageInfo = value;
+    });
+
     // TODO: implement initState
     super.initState();
+  }
+
+  Future _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    return info;
   }
 
   @override
@@ -64,6 +82,19 @@ class _SettingScreenState extends State<SettingScreen> {
                       icon: Icon(Icons.settings)),
                   hintText: "Length : ${currentPower.toString()} digits",
                   labelText: "Set Length ASCII",
+                  border: OutlineInputBorder()),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              onTap: () => modalPickerNumberLength(currentLength),
+              controller: TextEditingController(
+                  text: "Version : ${_packageInfo.version}"),
+              readOnly: true,
+              decoration: const InputDecoration(
+                  suffixIcon: Icon(Icons.mobile_friendly),
+                  labelText: "Version App",
                   border: OutlineInputBorder()),
             ),
           ],
