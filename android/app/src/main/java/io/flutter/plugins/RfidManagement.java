@@ -59,7 +59,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
         IntentFilter filter = new IntentFilter();
         mScanManager = new ScanManager();
      
-        initRfid(binding.getApplicationContext());
+        //initRfid(binding.getApplicationContext());
 
     }
   
@@ -228,6 +228,10 @@ class ScanCallback implements IRfidCallback {
             case "CloseScanner":
             mScanManager.closeScanner();
             result.success("Scanner closed");
+            break;
+            case "CheckScanner":
+            boolean ret = mScanManager.getScannerState();
+            result.success(ret);
             break;
 
             default:

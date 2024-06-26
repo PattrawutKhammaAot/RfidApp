@@ -14,6 +14,7 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   dynamic currentPower;
   dynamic currentLength;
+  dynamic isScanHeader;
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
@@ -25,12 +26,20 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   void initState() {
     SDK_Function.getPower().then((value) {
-      print(value);
-      currentPower = value;
+      if (value != 'Error' && value != null) {
+        currentPower = value;
+      }
+
       setState(() {});
     });
     SDK_Function.getLengthASCII().then((value) {
       currentLength = value;
+      setState(() {});
+    });
+    SDK_Function.checkScanner().then((value) {
+      print("Check $value");
+      isScanHeader = value;
+
       setState(() {});
     });
     _initPackageInfo().then((value) {
@@ -56,18 +65,21 @@ class _SettingScreenState extends State<SettingScreen> {
             SizedBox(
               height: 10,
             ),
-            TextFormField(
-              onTap: () => modalPickerNumber(currentPower),
-              controller: TextEditingController(text: "Power : $currentPower"),
-              readOnly: true,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                      onPressed: () => modalPickerNumber(currentPower),
-                      icon: Icon(Icons.settings_applications)),
-                  hintText: "Power : ${currentPower.toString()}",
-                  labelText: "Set Power",
-                  border: OutlineInputBorder()),
-            ),
+            currentPower != "Error" && currentPower != null
+                ? TextFormField(
+                    onTap: () => modalPickerNumber(currentPower),
+                    controller:
+                        TextEditingController(text: "Power : $currentPower"),
+                    readOnly: true,
+                    decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                            onPressed: () => modalPickerNumber(currentPower),
+                            icon: Icon(Icons.settings_applications)),
+                        hintText: "Power : ${currentPower.toString()}",
+                        labelText: "Set Power",
+                        border: OutlineInputBorder()),
+                  )
+                : CircularProgressIndicator(),
             SizedBox(
               height: 10,
             ),
@@ -95,6 +107,31 @@ class _SettingScreenState extends State<SettingScreen> {
               decoration: const InputDecoration(
                   suffixIcon: Icon(Icons.mobile_friendly),
                   labelText: "Version App",
+                  border: OutlineInputBorder()),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: TextEditingController(
+                  text:
+                      "Scanner status : ${isScanHeader != null ? isScanHeader ? "Open" : "Close" : "Scanner not found"}"),
+              readOnly: true,
+              decoration: InputDecoration(
+                  suffixIcon: isScanHeader != null
+                      ? Switch(
+                          value: isScanHeader,
+                          onChanged: (value) async {
+                            isScanHeader = value;
+                            setState(() {});
+                            if (isScanHeader) {
+                              await SDK_Function.openScanner();
+                            } else {
+                              await SDK_Function.closeScanner();
+                            }
+                          })
+                      : Icon(Icons.error),
+                  labelText: "Switch Scanner",
                   border: OutlineInputBorder()),
             ),
           ],

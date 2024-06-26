@@ -99,6 +99,42 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
         })
       ],
       child: Scaffold(
+        floatingActionButton: CircleAvatar(
+          backgroundColor: Colors.orangeAccent,
+          child: IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: Text("Delete All Data"),
+                          content:
+                              Text("Are you sure you want to delete all data?"),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancel")),
+                            TextButton(
+                                onPressed: () {
+                                  context.read<SearchRfidBloc>().add(
+                                      DeleteAllEvent(itemModel
+                                          .map((e) => e.key_id)
+                                          .toList()));
+                                  itemModel.clear();
+                                  setState(() {});
+
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Delete"))
+                          ],
+                        ));
+              },
+              icon: Icon(
+                Icons.delete_forever,
+                color: Colors.white,
+              )),
+        ),
         body: Padding(
             padding: EdgeInsets.all(8.0),
             child: Column(
@@ -127,7 +163,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                     ElevatedButton(
                         style: const ButtonStyle(
                             backgroundColor:
-                                MaterialStatePropertyAll(Colors.blueAccent)),
+                                WidgetStatePropertyAll(Colors.blueAccent)),
                         onPressed: () async {
                           if (itemModel.length > 0) {
                             await exportDataToTxt();
@@ -167,7 +203,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                           setState(() {});
                         },
                         child: Text(
-                          "Status: ${isFilter_status == "Default" ? "Select" : isFilter_status == "Not Found" ? "Not found" : "Found"}",
+                          "${isFilter_status == "Default" ? "Status : Select" : isFilter_status == "Not Found" ? "Not found" : "Found"}",
                           style: TextStyle(color: Colors.white),
                         )),
                     IconButton(

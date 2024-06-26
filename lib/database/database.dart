@@ -327,6 +327,28 @@ class AppDb extends _$AppDb {
         .then((value) => value == 1);
   }
 
+  Future<bool> deleteAllData(int key_id) async {
+    var result = await (select(tagRunningRfid)
+          ..where((tbl) => tbl.key_id.equals(key_id)))
+        .getSingleOrNull();
+    if (result != null) {
+      var objMaster = await (select(masterRfid)
+            ..where((tbl) => tbl.rfid_tag.equals(result.rfid_tag!)))
+          .getSingleOrNull();
+
+      if (objMaster != null) {
+        await update(masterRfid).replace(
+          Master_rfidCompanion(
+              key_id: Value(objMaster.key_id), status: Value("Not Found")),
+        );
+      }
+    }
+
+    return (delete(tagRunningRfid)..where((tbl) => tbl.key_id.equals(key_id)))
+        .go()
+        .then((value) => value == 1);
+  }
+
   Future<void> deleteTagRunningDuplicate() async {
     // Step 1: Fetch all entries
     final allEntries = await select(tagRunningRfid).get();

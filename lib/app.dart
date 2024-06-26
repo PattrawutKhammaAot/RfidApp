@@ -24,6 +24,7 @@ enum FetchStatus {
   importFinish,
   importFailed,
   deleteSuccess,
+  deleteAllSuccess,
   searchSuccess
 }
 

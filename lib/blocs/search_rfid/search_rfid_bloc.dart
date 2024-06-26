@@ -49,6 +49,23 @@ class SearchRfidBloc extends Bloc<SearchRfidEvent, SearchRfidState> {
         emit(state.copyWith(status: FetchStatus.failed, message: e.toString()));
       }
     });
+    on<DeleteAllEvent>((event, emit) async {
+      try {
+        emit(state.copyWith(status: FetchStatus.fetching));
+        var result = await deleteAllData(event.key_id);
+        if (result.statusCode!) {
+          emit(state.copyWith(
+              status: FetchStatus.deleteAllSuccess,
+              dataDefaultResponse: result));
+        } else {
+          emit(state.copyWith(
+              status: FetchStatus.failed, message: result.message));
+        }
+      } catch (e, s) {
+        print("$e$s");
+        emit(state.copyWith(status: FetchStatus.failed, message: e.toString()));
+      }
+    });
   }
 
   Future<List<Tag_Running_RfidData>> searchRfidFetch(String tag_id) async {
@@ -88,6 +105,24 @@ class SearchRfidBloc extends Bloc<SearchRfidEvent, SearchRfidState> {
 
       DefaultResponse post =
           DefaultResponse(statusCode: result, message: "Success");
+      return post;
+    } catch (e, s) {
+      print("Exception occured: $e StackTrace: $s");
+      throw Exception();
+    }
+  }
+
+  Future<DefaultResponse> deleteAllData(List<int> key_id) async {
+    try {
+      DefaultResponse post =
+          DefaultResponse(statusCode: false, message: "No data found");
+      if (key_id.isNotEmpty) {
+        for (var i in key_id) {
+          var result = await appDb.deleteRunningRfid(i);
+          post = DefaultResponse(statusCode: result, message: "Success");
+        }
+      }
+
       return post;
     } catch (e, s) {
       print("Exception occured: $e StackTrace: $s");

@@ -22,3 +22,11 @@ class DeleteRfidEvent extends SearchRfidEvent {
   @override
   List<Object> get props => [key_id];
 }
+
+class DeleteAllEvent extends SearchRfidEvent {
+  const DeleteAllEvent(this.key_id);
+  final List<int> key_id;
+
+  @override
+  List<Object> get props => [key_id];
+}

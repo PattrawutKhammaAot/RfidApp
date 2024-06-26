@@ -87,7 +87,7 @@ class SDK_Function {
 
       return result;
     } catch (e) {
-      print('Error123: $e');
+      print('Error GetLength: $e');
       return 'Error';
     }
   }
@@ -144,6 +144,20 @@ class SDK_Function {
     } catch (e) {
       print('Error123: $e');
       return 'Error';
+    }
+  }
+
+  static Future<dynamic> checkScanner() async {
+    try {
+      dynamic result = await platform.invokeMethod('CheckScanner');
+      if (result) {
+        return result;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error123: $e');
+      return null;
     }
   }
 
