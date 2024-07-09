@@ -49,7 +49,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     private Context context;
     
     boolean isASCII = false;
-    int lengthOfASCII = 11;
+    int lengthOfASCII = 10;
     private SoundTool soundTool;
 
     @Override

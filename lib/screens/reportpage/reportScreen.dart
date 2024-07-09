@@ -42,7 +42,6 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     appDb.deleteTagRunningDuplicate().then((value) {
-      print("Delete Tag Running");
       BlocProvider.of<ScanrfidCodeBloc>(context).add(
         GetTotoalScanEvent(),
       );
@@ -101,27 +100,26 @@ class _ReportScreenState extends State<ReportScreen> {
               EasyLoading.dismiss();
               if (state.totalScanModel != null) {
                 totalScanModel = state.totalScanModel!;
-                print(totalScanModel.totalFound);
-                print(totalScanModel.totalMaster);
-                chartData.add(ChartData(
-                    'Master',
-                    double.parse(totalScanModel.totalMaster.toString()),
-                    Colors.blueGrey));
-                chartData.add(ChartData(
-                    'Loss',
-                    double.parse(totalScanModel.totalLoss.toString()),
-                    Colors.red));
-                chartData.add(ChartData(
-                    'Found',
-                    double.parse(totalScanModel.totalFound.toString()),
-                    Colors.green[300]));
 
                 chartData.add(ChartData(
-                    'Not Scan',
+                    appLocalizations.txt_master,
+                    double.parse(totalScanModel.totalMaster.toString()),
+                    blueColor_master));
+                chartData.add(ChartData(
+                    appLocalizations.txt_not_found,
+                    double.parse(totalScanModel.totalLoss.toString()),
+                    pinkPaletteColor_not_found));
+                chartData.add(ChartData(
+                    appLocalizations.txt_found,
+                    double.parse(totalScanModel.totalFound.toString()),
+                    pinkColor_found));
+
+                chartData.add(ChartData(
+                    appLocalizations.txt_not_scan,
                     double.parse((totalScanModel.totalMaster! -
                             totalScanModel.totalFound!)
                         .toString()),
-                    Colors.green[300]));
+                    pinkPaletteColor1_not_scan));
 
                 setState(() {});
               }
@@ -150,13 +148,14 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Scaffold(
           floatingActionButton: ElevatedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(blueColor),
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(blueColor_master),
             ),
             onPressed: () async {
               _importCSV();
             },
             child: Text(
-              "Import Data",
+              appLocalizations.btn_import_data,
               style: TextStyle(color: whiteColor),
             ),
           ),
@@ -172,6 +171,7 @@ class _ReportScreenState extends State<ReportScreen> {
                             dataSource: chartData,
                             xValueMapper: (ChartData data, _) => data.x,
                             yValueMapper: (ChartData data, _) => data.y.toInt(),
+                            pointColorMapper: (ChartData data, _) => data.color,
                             radius: '100%',
                             explode: true,
                             dataLabelSettings:
@@ -187,7 +187,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     SizedBox(
                       width: 10,
                     ),
-                    Text("Information"),
+                    Text(appLocalizations.txt_information),
                     SizedBox(
                       width: 10,
                     ),
@@ -233,10 +233,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                 lineWidth: 8.0,
                                 percent: 1.0,
                                 center: new Text(
-                                  " Master \n ${totalScanModel.totalMaster} EA",
+                                  "${appLocalizations.txt_master} \n ${totalScanModel.totalMaster} EA",
                                   textAlign: TextAlign.center,
                                 ),
-                                progressColor: blueColor,
+                                progressColor: blueColor_master,
                               )),
                           Container(
                             padding: const EdgeInsets.all(8),
@@ -272,10 +272,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                       totalScanModel.totalMaster!
                                   : 1,
                               center: new Text(
-                                " Found  \n ${totalScanModel.totalFound != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalFound! / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalFound} EA",
+                                "${appLocalizations.txt_found}  \n ${totalScanModel.totalFound != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalFound! / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalFound} EA",
                                 textAlign: TextAlign.center,
                               ),
-                              progressColor: pinkColor,
+                              progressColor: pinkColor_found,
                             ),
                           ),
                           Container(
@@ -311,10 +311,10 @@ class _ReportScreenState extends State<ReportScreen> {
                                       totalScanModel.totalMaster!
                                   : 1,
                               center: new Text(
-                                "Not Scan  \n ${totalScanModel.totalMaster != 0 && totalScanModel.totalFound != 0 ? (((totalScanModel.totalMaster! - totalScanModel.totalFound!) / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalMaster != 0 ? (totalScanModel.totalMaster! - totalScanModel.totalFound!) : "0"} EA",
+                                "${appLocalizations.txt_not_scan}  \n ${totalScanModel.totalMaster != 0 && totalScanModel.totalFound != 0 ? (((totalScanModel.totalMaster! - totalScanModel.totalFound!) / totalScanModel.totalMaster!) * 100).toInt() : ""}% \n ${totalScanModel.totalMaster != 0 ? (totalScanModel.totalMaster! - totalScanModel.totalFound!) : "0"} EA",
                                 textAlign: TextAlign.center,
                               ),
-                              progressColor: pinkPaletteColor1,
+                              progressColor: pinkPaletteColor1_not_scan,
                             ),
                           ),
                           Container(
@@ -353,14 +353,14 @@ class _ReportScreenState extends State<ReportScreen> {
                               center: totalScanModel.totalLoss! >
                                       totalScanModel.totalMaster!
                                   ? Text(
-                                      "Loss \n ${totalScanModel.totalLoss!} EA",
+                                      "${appLocalizations.txt_not_found} \n ${totalScanModel.totalLoss!} EA",
                                       textAlign: TextAlign.center,
                                     )
                                   : Text(
-                                      " Loss \n ${totalScanModel.totalLoss != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt() : "No data"}% \n ${totalScanModel.totalLoss} EA",
+                                      "${appLocalizations.txt_not_found} \n ${totalScanModel.totalLoss != 0 && totalScanModel.totalMaster != 0 ? ((totalScanModel.totalLoss! / totalScanModel.totalMaster!) * 100).toInt() : "No data"}% \n ${totalScanModel.totalLoss} EA",
                                       textAlign: TextAlign.center,
                                     ),
-                              progressColor: pinkPaletteColor,
+                              progressColor: pinkPaletteColor_not_found,
                             ),
                           ),
                         ],

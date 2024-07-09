@@ -127,7 +127,7 @@ class SDK_Function {
 
   static Future<dynamic> closeScanner() async {
     try {
-      dynamic result = await platform.invokeMethod('closeScanner');
+      dynamic result = await platform.invokeMethod('CloseScanner');
 
       return result;
     } catch (e) {
@@ -138,7 +138,7 @@ class SDK_Function {
 
   static Future<dynamic> openScanner() async {
     try {
-      dynamic result = await platform.invokeMethod('openScanner');
+      dynamic result = await platform.invokeMethod('OpenScanner');
 
       return result;
     } catch (e) {
@@ -150,6 +150,7 @@ class SDK_Function {
   static Future<dynamic> checkScanner() async {
     try {
       dynamic result = await platform.invokeMethod('CheckScanner');
+
       if (result) {
         return result;
       } else {

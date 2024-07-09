@@ -91,26 +91,26 @@ class _HomePageControlState extends State<HomePageControl> {
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.ad_units),
-            label: 'Find Inventory',
+            label: "${appLocalizations.menu_find_inventory}",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
-            label: 'Search',
+            label: appLocalizations.search,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Scan',
+            label: appLocalizations.scan_title,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Report',
+            label: appLocalizations.menu_report,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Setting',
+            label: appLocalizations.menu_setting,
           ),
         ],
         currentIndex: _selectedIndex,

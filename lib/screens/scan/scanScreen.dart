@@ -17,6 +17,7 @@ import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/config/appConfig.dart';
 import 'package:rfid/config/appConstants.dart';
 import 'package:rfid/database/database.dart';
+import 'package:rfid/main.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
@@ -97,7 +98,6 @@ class _ScanScreenState extends State<ScanScreen> {
               focusNode: focusNode,
               autofocus: true,
               onKeyEvent: (e) async {
-                print("object");
                 const customKeyId = 0x110000020b;
                 if (e is KeyDownEvent) {
                   if (e.logicalKey.keyId == customKeyId) {
@@ -233,7 +233,10 @@ class _ScanScreenState extends State<ScanScreen> {
                             }
                             setState(() {});
                           },
-                          child: Text(isScanning ? "Stop Scan" : "Start Scan",
+                          child: Text(
+                              isScanning
+                                  ? appLocalizations.btn_stop_scan
+                                  : appLocalizations.btn_start_scan,
                               style: TextStyle(color: Colors.white))),
                       ElevatedButton(
                           style: ButtonStyle(
@@ -246,7 +249,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             });
                           },
                           child: Text(
-                            "Clear Data",
+                            appLocalizations.btn_clear_all,
                             style: TextStyle(color: Colors.white),
                           )),
                       ElevatedButton(
@@ -259,11 +262,11 @@ class _ScanScreenState extends State<ScanScreen> {
                             if (_addTable.isNotEmpty) {
                               await exportDataToTxt();
                             } else {
-                              EasyLoading.showError("No Data Export");
+                              EasyLoading.showError(appLocalizations.no_data);
                             }
                           },
                           child: Text(
-                            "Export Data",
+                            appLocalizations.btn_export_data,
                             style: TextStyle(color: Colors.white),
                           )),
                     ],
@@ -304,11 +307,12 @@ class _ScanScreenState extends State<ScanScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: [
-                                    Text("Total: ${_addTable.length}"),
                                     Text(
-                                        "Found: ${_addTable.where((element) => element.status == "Found").toList().length}"),
+                                        "${appLocalizations.txt_total}: ${_addTable.length}"),
                                     Text(
-                                        "Loss: ${_addTable.where((element) => element.status != "Found").toList().length}"),
+                                        "${appLocalizations.txt_found}: ${_addTable.where((element) => element.status == "Found").toList().length}"),
+                                    Text(
+                                        "${appLocalizations.txt_not_found}: ${_addTable.where((element) => element.status != "Found").toList().length}"),
                                     Row(
                                       children: <Widget>[
                                         Text("ASCII"),

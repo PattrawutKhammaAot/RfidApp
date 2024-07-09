@@ -136,7 +136,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                   focusNode: focusNode,
                   decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Add RFID ',
+                      hintText: appLocalizations.hint_add_rfid,
                       suffixIcon: IconButton(
                         icon: Icon(Icons.add_circle),
                         onPressed: () {
@@ -208,11 +208,11 @@ class _AddRfidPageState extends State<AddRfidPage> {
                       if (itemList.isNotEmpty) {
                         await exportDataToTxt();
                       } else {
-                        EasyLoading.showError("No data to export");
+                        EasyLoading.showError(appLocalizations.no_data);
                       }
                     },
                     child: Text(
-                      "Export Data",
+                      appLocalizations.btn_export_data,
                       style: TextStyle(color: Colors.white),
                     ),
                     style: ButtonStyle(
@@ -225,7 +225,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                           .add(ClearTempMasterEvent());
                     },
                     child: Text(
-                      "Clear All",
+                      appLocalizations.btn_clear_all,
                       style: TextStyle(color: Colors.white),
                     ),
                     style: ButtonStyle(
@@ -311,7 +311,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                     backgroundColor: Colors.green,
                                     foregroundColor: Colors.white,
                                     icon: Icons.delete,
-                                    label: 'Edit',
+                                    label: appLocalizations.btn_edit,
                                   ),
                                 ],
                               ),
@@ -337,7 +337,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                     icon: Icons.delete,
-                                    label: 'Delete',
+                                    label: appLocalizations.btn_delete,
                                   ),
                                 ],
                               ),
@@ -361,7 +361,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                           children: [
                                             Flexible(
                                               child: Text(
-                                                'RFID Tag : ${itemList[index].rfid_tag}',
+                                                '${appLocalizations.txt_number_tag} : ${itemList[index].rfid_tag}',
                                                 maxLines: 3,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
@@ -397,7 +397,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                                         color: Colors.white))
                                                 : SizedBox.fromSize(),
                                             Text(
-                                                'Status : ${itemList[index].status ?? "Not Found"} ',
+                                                '${appLocalizations.txt_status} : ${itemList[index].status ?? "Not Found"} ',
                                                 style: TextStyle(
                                                     color: Colors.white)),
                                           ],
@@ -412,7 +412,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                         ),
                       )
                     : Center(
-                        child: Text("No data"),
+                        child: Text(appLocalizations.no_data),
                       );
               })
             ],
@@ -434,17 +434,17 @@ class _AddRfidPageState extends State<AddRfidPage> {
         return AlertDialog(
           title: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [Text('Edit RFID')],
+            children: [Text(appLocalizations.txt_edit_rfid)],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Current Rfid: $rfid"),
+              Text("${appLocalizations.txt_curent_rfid}: $rfid"),
               TextField(
                 autofocus: true,
                 controller: rfidController,
                 decoration: InputDecoration(
-                  hintText: "Enter new Rfid",
+                  hintText: appLocalizations.txt_new_rfid,
                 ),
               ),
             ],
@@ -455,7 +455,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                 backgroundColor: WidgetStatePropertyAll(Colors.green),
               ),
               child: Text(
-                'Save',
+                appLocalizations.btn_save,
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () async {
@@ -464,7 +464,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                       .where(
                           (qry) => qry.rfid_tag == rfidController.text.trim())
                       .isNotEmpty) {
-                    EasyLoading.showError("Duplicate Rfid");
+                    EasyLoading.showError(appLocalizations.txt_duplicate_edit);
                   } else {
                     context.read<TempMasterBloc>().add(EditTempMasterEvent(
                         TempMasterRfidData(
@@ -486,7 +486,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                 backgroundColor: WidgetStatePropertyAll(Colors.red),
               ),
               child: Text(
-                'Close',
+                appLocalizations.btn_cancel,
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
@@ -528,7 +528,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
         }
 
         await sink.close();
-        EasyLoading.showSuccess("Export Data Success");
+        EasyLoading.showSuccess(appLocalizations.txt_export_success);
         print(pathFile);
       } else {
         openAppSettings();

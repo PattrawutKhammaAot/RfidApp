@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rfid/config/appData.dart';
+import 'package:rfid/main.dart';
 
+import '../../app.dart';
 import '../../nativefunction/nativeFunction.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -65,18 +68,37 @@ class _SettingScreenState extends State<SettingScreen> {
             SizedBox(
               height: 10,
             ),
+            TextFormField(
+              onTap: () => modalSelectLang(currentPower),
+              controller: TextEditingController(
+                  text:
+                      "${appLocalizations.txt_current_lang} : ${appLocalizations.current_lang}"),
+              readOnly: true,
+              decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                      onPressed: () => modalSelectLang(currentPower),
+                      icon: Icon(Icons.language)),
+                  hintText:
+                      "${appLocalizations.txt_power} : ${currentPower.toString()}",
+                  labelText: appLocalizations.txt_select_lang_title,
+                  border: OutlineInputBorder()),
+            ),
+            SizedBox(
+              height: 10,
+            ),
             currentPower != "Error" && currentPower != null
                 ? TextFormField(
                     onTap: () => modalPickerNumber(currentPower),
-                    controller:
-                        TextEditingController(text: "Power : $currentPower"),
+                    controller: TextEditingController(
+                        text: "${appLocalizations.txt_power} : $currentPower"),
                     readOnly: true,
                     decoration: InputDecoration(
                         suffixIcon: IconButton(
                             onPressed: () => modalPickerNumber(currentPower),
                             icon: Icon(Icons.settings_applications)),
-                        hintText: "Power : ${currentPower.toString()}",
-                        labelText: "Set Power",
+                        hintText:
+                            "${appLocalizations.txt_power} : ${currentPower.toString()}",
+                        labelText: appLocalizations.btn_set_power,
                         border: OutlineInputBorder()),
                   )
                 : CircularProgressIndicator(),
@@ -85,28 +107,16 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
             TextFormField(
               onTap: () => modalPickerNumberLength(currentLength),
-              controller:
-                  TextEditingController(text: "Power : $currentLength digits"),
+              controller: TextEditingController(
+                  text:
+                      "${appLocalizations.txt_length_ASCII} : $currentLength ${appLocalizations.txt_unit}"),
               readOnly: true,
               decoration: InputDecoration(
                   suffixIcon: IconButton(
                       onPressed: () => modalPickerNumberLength(currentLength),
                       icon: Icon(Icons.settings)),
                   hintText: "Length : ${currentPower.toString()} digits",
-                  labelText: "Set Length ASCII",
-                  border: OutlineInputBorder()),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              onTap: () => modalPickerNumberLength(currentLength),
-              controller: TextEditingController(
-                  text: "Version : ${_packageInfo.version}"),
-              readOnly: true,
-              decoration: const InputDecoration(
-                  suffixIcon: Icon(Icons.mobile_friendly),
-                  labelText: "Version App",
+                  labelText: appLocalizations.btn_set_length_ASCII,
                   border: OutlineInputBorder()),
             ),
             SizedBox(
@@ -115,7 +125,7 @@ class _SettingScreenState extends State<SettingScreen> {
             TextFormField(
               controller: TextEditingController(
                   text:
-                      "Scanner status : ${isScanHeader != null ? isScanHeader ? "Open" : "Close" : "Scanner not found"}"),
+                      "${appLocalizations.txt_scanner} : ${isScanHeader != null ? isScanHeader ? appLocalizations.status_scanner_on : appLocalizations.status_scanner_off : appLocalizations.no_data}"),
               readOnly: true,
               decoration: InputDecoration(
                   suffixIcon: isScanHeader != null
@@ -131,12 +141,83 @@ class _SettingScreenState extends State<SettingScreen> {
                             }
                           })
                       : Icon(Icons.error),
-                  labelText: "Switch Scanner",
+                  labelText: appLocalizations.btn_swtich_scanner,
                   border: OutlineInputBorder()),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: TextEditingController(
+                  text: "Version : ${_packageInfo.version}"),
+              readOnly: true,
+              decoration: const InputDecoration(
+                  suffixIcon: Icon(Icons.mobile_friendly),
+                  labelText: "Version App",
+                  border: OutlineInputBorder()),
+            ),
+            SizedBox(
+              height: 10,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void modalSelectLang(dynamic power) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Column(
+            children: <Widget>[
+              const SizedBox(height: 10, width: double.infinity),
+              Center(
+                  child: Text(
+                appLocalizations.txt_select_lang_title,
+                style: TextStyle(fontSize: 20),
+              )),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "${appLocalizations.txt_current_lang} : ${appLocalizations.current_lang}",
+                style: TextStyle(fontSize: 18),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8, left: 8),
+                child: Divider(
+                  color: Colors.black,
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  physics: BouncingScrollPhysics(),
+                  children: [
+                    ListTile(
+                      title: Text('English'),
+                      onTap: () async {
+                        AppView.of(context)?.setLocale(Locale('en'));
+                        await AppData.setLocale('en');
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      title: Text('ภาษาไทย'),
+                      onTap: () async {
+                        AppView.of(context)?.setLocale(Locale('th'));
+                        await AppData.setLocale('th');
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -151,16 +232,16 @@ class _SettingScreenState extends State<SettingScreen> {
           child: Column(
             children: <Widget>[
               const SizedBox(height: 10, width: double.infinity),
-              const Center(
+              Center(
                   child: Text(
-                "Select Power",
+                appLocalizations.txt_select_power,
                 style: TextStyle(fontSize: 20),
               )),
               SizedBox(
                 height: 10,
               ),
               Text(
-                "Current Power : $power",
+                "${appLocalizations.txt_current_power} : $power",
                 style: TextStyle(fontSize: 18),
               ),
               Padding(
@@ -175,7 +256,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   itemCount: numbers.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text('Power : ${numbers[index]}'),
+                      title: Text(
+                          '${appLocalizations.txt_length_power} : ${numbers[index]}'),
                       onTap: () async {
                         var result =
                             await SDK_Function.setPower(numbers[index]);
@@ -206,16 +288,16 @@ class _SettingScreenState extends State<SettingScreen> {
           child: Column(
             children: <Widget>[
               const SizedBox(height: 10, width: double.infinity),
-              const Center(
+              Center(
                   child: Text(
-                "Select length",
+                appLocalizations.txt_select_digits,
                 style: TextStyle(fontSize: 20),
               )),
               SizedBox(
                 height: 10,
               ),
               Text(
-                "Current length : $length",
+                "${appLocalizations.txt_current_digits} : $length",
                 style: TextStyle(fontSize: 18),
               ),
               Padding(
@@ -230,7 +312,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   itemCount: numbers.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text('length : ${numbers[index]}'),
+                      title: Text(
+                          '${appLocalizations.txt_digits} : ${numbers[index]}'),
                       onTap: () async {
                         var result =
                             await SDK_Function.setLengthASCII(numbers[index]);

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flutter_localization
   permission_handler_windows
   sqlite3_flutter_libs
 )

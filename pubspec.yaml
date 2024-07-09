@@ -38,11 +38,11 @@ dependencies:
   equatable: ^2.0.5
   flutter_bloc: ^8.1.2
 
-  syncfusion_flutter_datagrid: ^21.1.41
+  syncfusion_flutter_datagrid: ^26.1.40
   dio: ^5.4.0
   top_snackbar_flutter: ^3.1.0
   flutter_easyloading: ^3.0.5
-  syncfusion_flutter_charts: ^21.2.10
+  syncfusion_flutter_charts: ^26.1.40
   file_picker: ^6.1.1
   csv: ^5.1.1
   percent_indicator: ^4.2.3
@@ -51,11 +51,13 @@ dependencies:
   flutter_slidable: ^3.1.0
   android_path_provider: ^0.3.0
   nfc_manager: ^3.3.0
-  intl: ^0.18.1
+  intl: ^0.19.0
   drift: ^2.18.0
   sqlite3_flutter_libs: ^0.5.0
   drift_db_viewer: ^2.1.0
   package_info_plus: ^8.0.0
+  flutter_localization: ^0.2.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   drift_dev: ^2.18.0
@@ -79,6 +81,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
+  # Assuming your ARB files are in lib/lang
 
   # To add assets to your application, add an assets section, like this:
   # assets:

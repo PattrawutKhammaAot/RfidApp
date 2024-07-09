@@ -72,7 +72,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
         }
 
         await sink.close();
-        EasyLoading.showSuccess("Export Data Success");
+        EasyLoading.showSuccess(appLocalizations.txt_export_success);
         print(pathFile);
       } else {
         openAppSettings();
@@ -106,16 +106,24 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                          title: Text("Delete All Data"),
-                          content:
-                              Text("Are you sure you want to delete all data?"),
+                          title: Text(appLocalizations.popup_del_title_all),
+                          content: Text(appLocalizations.popup_del_sub_all),
                           actions: [
                             TextButton(
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStatePropertyAll(Colors.blue)),
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("Cancel")),
+                                child: Text(
+                                  appLocalizations.btn_cancel,
+                                  style: TextStyle(color: Colors.white),
+                                )),
                             TextButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(
+                                        Colors.redAccent)),
                                 onPressed: () {
                                   context.read<SearchRfidBloc>().add(
                                       DeleteAllEvent(itemModel
@@ -126,7 +134,10 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
 
                                   Navigator.pop(context);
                                 },
-                                child: Text("Delete"))
+                                child: Text(
+                                  appLocalizations.btn_delete,
+                                  style: TextStyle(color: Colors.white),
+                                ))
                           ],
                         ));
               },
@@ -146,7 +157,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                     focusNode: focusNode,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Search',
+                      hintText: appLocalizations.search,
                     ),
                     onChanged: (value) {
                       if (value.length > 1) {
@@ -168,11 +179,11 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                           if (itemModel.length > 0) {
                             await exportDataToTxt();
                           } else {
-                            EasyLoading.showError("No Data");
+                            EasyLoading.showError(appLocalizations.no_data);
                           }
                         },
-                        child: const Text(
-                          "Export Data",
+                        child: Text(
+                          appLocalizations.btn_export_data,
                           style: TextStyle(color: Colors.white),
                         )),
                     ElevatedButton(
@@ -203,7 +214,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                           setState(() {});
                         },
                         child: Text(
-                          "${isFilter_status == "Default" ? "Status : Select" : isFilter_status == "Not Found" ? "Not found" : "Found"}",
+                          "${isFilter_status == "Default" ? "${appLocalizations.btn_status_select}" : isFilter_status == "Not Found" ? "${appLocalizations.btn_status_not_found}" : "${appLocalizations.btn_status_found}"}",
                           style: TextStyle(color: Colors.white),
                         )),
                     IconButton(
@@ -259,7 +270,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                     backgroundColor: Colors.red,
                                     foregroundColor: Colors.white,
                                     icon: Icons.delete,
-                                    label: 'Delete',
+                                    label: appLocalizations.btn_delete,
                                   ),
                                 ],
                               ),
@@ -276,7 +287,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'RFID Tag : ${itemModel[index].rfid_tag}',
+                                        '${appLocalizations.txt_number_tag} : ${itemModel[index].rfid_tag}',
                                         style: TextStyle(color: Colors.white),
                                       ),
                                       SizedBox(
@@ -291,7 +302,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                               style: TextStyle(
                                                   color: Colors.white)),
                                           Text(
-                                              'Status : ${itemModel[index].status}',
+                                              '${appLocalizations.txt_status} : ${itemModel[index].status}',
                                               style: TextStyle(
                                                   color: Colors.white)),
                                         ],
@@ -305,7 +316,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                         ),
                       )
                     : Center(
-                        child: Text("No Data"),
+                        child: Text(appLocalizations.no_data),
                       )
               ],
             )),

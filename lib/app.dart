@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/blocs/master/master_rfid_bloc.dart';
 import 'package:rfid/blocs/network/bloc/network_bloc.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
 import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
+import 'package:rfid/config/appData.dart';
+import 'package:rfid/main.dart';
 import 'package:rfid/nativefunction/nativeFunction.dart';
 import 'package:rfid/screens/homepage/homepageControl.dart';
 import 'package:rfid/screens/scan/scanScreen.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 enum FetchStatus {
   fetching,
@@ -66,7 +71,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
-    print("State: $state");
+
     switch (state) {
       case AppLifecycleState.paused:
         await SDK_Function.openScanner();
@@ -123,6 +128,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
 class AppView extends StatefulWidget {
   const AppView({super.key});
+  static _AppViewState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_AppViewState>();
 
   @override
   State<AppView> createState() => _AppViewState();
@@ -130,13 +137,40 @@ class AppView extends StatefulWidget {
 
 class _AppViewState extends State<AppView> {
   final easyLoading = EasyLoading.init();
+  Locale _locale = Locale('en');
+  @override
+  void initState() {
+    AppData.getLocale().then((e) {
+      if (e != null && e != '') {
+        _locale = Locale(e);
+      }
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       builder: (context, child) {
+        appLocalizations = AppLocalizations.of(context)!;
         child = easyLoading(context, child);
         return child;
       },
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      locale: _locale,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: HomePageControl(),
     );
   }
