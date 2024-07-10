@@ -12,6 +12,7 @@ import 'package:rfid/blocs/scanrfid/models/importRfidCodeModel.dart';
 import 'package:rfid/blocs/scanrfid/models/total_scan_Model.dart';
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/config/appConstants.dart';
+import 'package:rfid/config/appData.dart';
 import 'package:rfid/main.dart';
 import 'package:rfid/screens/reportpage/model/import_txt.dart';
 import 'package:rfid/screens/scan/tableViewScan.dart';
@@ -46,6 +47,8 @@ class _ReportScreenState extends State<ReportScreen> {
         GetTotoalScanEvent(),
       );
     });
+
+    AppData.setPopupInfo("page_report");
     // TODO: implement initState
     super.initState();
   }

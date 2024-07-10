@@ -31,6 +31,12 @@ class _SettingScreenState extends State<SettingScreen> {
     SDK_Function.getPower().then((value) {
       if (value != 'Error' && value != null) {
         currentPower = value;
+      } else {
+        AppData.getPower().then((value) {
+          if (value != null && value != '') {
+            currentPower = value;
+          }
+        });
       }
 
       setState(() {});
@@ -40,16 +46,15 @@ class _SettingScreenState extends State<SettingScreen> {
       setState(() {});
     });
     SDK_Function.checkScanner().then((value) {
-      print("Check $value");
       isScanHeader = value;
-
       setState(() {});
     });
+
     _initPackageInfo().then((value) {
       _packageInfo = value;
     });
+    AppData.setPopupInfo("page_settings");
 
-    // TODO: implement initState
     super.initState();
   }
 
@@ -78,8 +83,6 @@ class _SettingScreenState extends State<SettingScreen> {
                   suffixIcon: IconButton(
                       onPressed: () => modalSelectLang(currentPower),
                       icon: Icon(Icons.language)),
-                  hintText:
-                      "${appLocalizations.txt_power} : ${currentPower.toString()}",
                   labelText: appLocalizations.txt_select_lang_title,
                   border: OutlineInputBorder()),
             ),
@@ -115,7 +118,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   suffixIcon: IconButton(
                       onPressed: () => modalPickerNumberLength(currentLength),
                       icon: Icon(Icons.settings)),
-                  hintText: "Length : ${currentPower.toString()} digits",
+                  hintText: "Length ${currentPower.toString()} digits",
                   labelText: appLocalizations.btn_set_length_ASCII,
                   border: OutlineInputBorder()),
             ),
@@ -125,7 +128,7 @@ class _SettingScreenState extends State<SettingScreen> {
             TextFormField(
               controller: TextEditingController(
                   text:
-                      "${appLocalizations.txt_scanner} : ${isScanHeader != null ? isScanHeader ? appLocalizations.status_scanner_on : appLocalizations.status_scanner_off : appLocalizations.no_data}"),
+                      "${appLocalizations.txt_scanner} ${isScanHeader != null ? isScanHeader ? appLocalizations.status_scanner_on : appLocalizations.status_scanner_off : appLocalizations.no_data}"),
               readOnly: true,
               decoration: InputDecoration(
                   suffixIcon: isScanHeader != null
@@ -261,9 +264,19 @@ class _SettingScreenState extends State<SettingScreen> {
                       onTap: () async {
                         var result =
                             await SDK_Function.setPower(numbers[index]);
+                        await AppData.setPower(numbers[index].toString());
                         currentPower = numbers[index];
                         setState(() {});
-                        EasyLoading.showSuccess(result);
+                        if (result == "Error") {
+                          EasyLoading.show(
+                              status: appLocalizations.txt_connection);
+                          await Future.delayed(Duration(seconds: 3));
+                          EasyLoading.showSuccess(
+                              appLocalizations.txt_connection_success);
+                        } else {
+                          EasyLoading.showSuccess(result);
+                        }
+
                         Navigator.pop(context);
                       },
                     );
@@ -317,6 +330,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       onTap: () async {
                         var result =
                             await SDK_Function.setLengthASCII(numbers[index]);
+
                         currentLength = numbers[index];
                         setState(() {});
                         EasyLoading.showSuccess(result);

@@ -74,20 +74,23 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
     switch (state) {
       case AppLifecycleState.paused:
-        await SDK_Function.openScanner();
+
         // App is in background
         break;
       case AppLifecycleState.resumed:
-        await SDK_Function.closeScanner();
+
         // App is resumed
         break;
       case AppLifecycleState.inactive:
         // App is inactive
+        // await SDK_Function.openScanner();
         break;
       case AppLifecycleState.detached:
+        // await SDK_Function.openScanner();
         // App is detached
         break;
       case AppLifecycleState.hidden:
+      // await SDK_Function.openScanner();
       // TODO: Handle this case.
     }
   }
@@ -158,6 +161,7 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: true,
       builder: (context, child) {
         appLocalizations = AppLocalizations.of(context)!;
         child = easyLoading(context, child);

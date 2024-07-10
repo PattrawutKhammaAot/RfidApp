@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rfid/main.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ZincDataSource extends DataGridSource {
@@ -12,7 +13,11 @@ class ZincDataSource extends DataGridSource {
                 DataGridCell<String>(
                     columnName: 'rfid_tag', value: _item.rfid_tag),
                 DataGridCell(columnName: 'RSSI', value: "-${_item.rssi} dBm"),
-                DataGridCell<String>(columnName: 'status', value: _item.status),
+                DataGridCell<String>(
+                    columnName: 'status',
+                    value: _item.status == "Found"
+                        ? appLocalizations.txt_found
+                        : appLocalizations.txt_not_found),
                 // DataGridCell<String>(columnName: 't1', value: _item.Thickness1),
                 // DataGridCell<String>(columnName: 't2', value: _item.Thickness2),
                 // DataGridCell<String>(columnName: 't3', value: _item.Thickness3),
@@ -41,22 +46,36 @@ class ZincDataSource extends DataGridSource {
       cells: row.getCells().map<Widget>(
         (dataGridCell) {
           Color getColor() {
-            if (dataGridCell.columnName == 'status' &&
-                dataGridCell.value == 'Not Found') {
+            if ((dataGridCell.columnName == 'status' &&
+                    dataGridCell.value == 'Not Found') ||
+                (dataGridCell.columnName == 'status' &&
+                    dataGridCell.value == 'ไม่พบ')) {
               return Colors.red;
-            } else if (dataGridCell.columnName == 'rfid_tag' &&
-                row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'status')
-                        .value ==
-                    'Not Found') {
+            } else if ((dataGridCell.columnName == 'rfid_tag' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'Not Found') ||
+                (dataGridCell.columnName == 'rfid_tag' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'ไม่พบ')) {
               return Colors.red;
-            } else if (dataGridCell.columnName == 'RSSI' &&
-                row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'status')
-                        .value ==
-                    'Not Found') {
+            } else if ((dataGridCell.columnName == 'RSSI' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'Not Found') ||
+                (dataGridCell.columnName == 'RSSI' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'ไม่พบ')) {
               return Colors.red;
             } else {
               return Colors.green;
@@ -64,22 +83,36 @@ class ZincDataSource extends DataGridSource {
           }
 
           Color getTextColor() {
-            if (dataGridCell.columnName == 'status' &&
-                dataGridCell.value == 'Not Found') {
+            if ((dataGridCell.columnName == 'status' &&
+                    dataGridCell.value == 'Not Found') ||
+                (dataGridCell.columnName == 'status' &&
+                    dataGridCell.value == 'ไม่พบ')) {
               return Colors.white;
-            } else if (dataGridCell.columnName == 'rfid_tag' &&
-                row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'status')
-                        .value ==
-                    'Not Found') {
+            } else if ((dataGridCell.columnName == 'rfid_tag' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'Not Found') ||
+                (dataGridCell.columnName == 'rfid_tag' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'ไม่พบ')) {
               return Colors.white;
-            } else if (dataGridCell.columnName == 'RSSI' &&
-                row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'status')
-                        .value ==
-                    'Not Found') {
+            } else if ((dataGridCell.columnName == 'RSSI' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'Not Found') ||
+                (dataGridCell.columnName == 'RSSI' &&
+                    row
+                            .getCells()
+                            .firstWhere((cell) => cell.columnName == 'status')
+                            .value ==
+                        'ไม่พบ')) {
               return Colors.white;
             }
 

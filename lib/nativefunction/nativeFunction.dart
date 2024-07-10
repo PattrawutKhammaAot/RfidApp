@@ -61,7 +61,7 @@ class SDK_Function {
   static Future<dynamic> getPower() async {
     try {
       dynamic result = await platform.invokeMethod('GetPower');
-
+      print("result: $result");
       return result;
     } catch (e) {
       print('Error123: $e');
@@ -71,6 +71,7 @@ class SDK_Function {
 
   static Future<dynamic> setPower(int setpower) async {
     try {
+      print("Power of setpower: $setpower");
       dynamic result =
           await platform.invokeMethod('SetPower', {"power": setpower});
       return result;
@@ -118,7 +119,7 @@ class SDK_Function {
         return null;
       });
     } catch (e, s) {
-      print('Error123: $e');
+      print('Error Scanned: $e');
       return 'Error';
     }
 
@@ -131,7 +132,7 @@ class SDK_Function {
 
       return result;
     } catch (e) {
-      print('Error123: $e');
+      print('Error CloseScanner: $e');
       return 'Error';
     }
   }
@@ -142,7 +143,7 @@ class SDK_Function {
 
       return result;
     } catch (e) {
-      print('Error123: $e');
+      print('Error OpenScanner: $e');
       return 'Error';
     }
   }
@@ -156,8 +157,23 @@ class SDK_Function {
       } else {
         return false;
       }
-    } catch (e) {
-      print('Error123: $e');
+    } on PlatformException catch (e) {
+      print("Error from platform channel: ${e.code}, ${e.message}");
+      return null;
+    }
+  }
+
+  static Future<dynamic> getTriggerLockState() async {
+    try {
+      dynamic result = await platform.invokeMethod('getTriggerLockState');
+      print("result $result");
+      if (result) {
+        return result;
+      } else {
+        return false;
+      }
+    } on PlatformException catch (e) {
+      print("Error from platform channel: ${e.code}, ${e.message}");
       return null;
     }
   }

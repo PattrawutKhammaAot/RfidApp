@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:android_path_provider/android_path_provider.dart';
@@ -11,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/app.dart';
 import 'package:rfid/blocs/search_rfid/models/search_rfid_model.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
+import 'package:rfid/config/appData.dart';
 import 'package:rfid/database/database.dart';
 import 'package:rfid/main.dart';
 import 'package:rfid/nativefunction/nativeFunction.dart';
@@ -30,6 +32,8 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
   String isFilter_status = "Default";
   List<Tag_Running_RfidData> itemModel = [];
   List<Tag_Running_RfidData> temp_itemModel = [];
+  StreamSubscription<SearchRfidState>? _subscription;
+
   @override
   void initState() {
     appDb.deleteTagRunningDuplicate().then((value) {
@@ -43,8 +47,28 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
       });
     });
 
+    _subscribeToBloc();
+    AppData.setPopupInfo("page_serachtag");
     // TODO: implement initState
     super.initState();
+  }
+
+  void _subscribeToBloc() {
+    _subscription = context.read<SearchRfidBloc>().stream.listen((state) {
+      if (state.status == FetchStatus.deleteAllSuccess) {
+        itemModel.clear();
+        temp_itemModel.clear();
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> exportDataToTxt() async {
@@ -99,53 +123,53 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
         })
       ],
       child: Scaffold(
-        floatingActionButton: CircleAvatar(
-          backgroundColor: Colors.orangeAccent,
-          child: IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                          title: Text(appLocalizations.popup_del_title_all),
-                          content: Text(appLocalizations.popup_del_sub_all),
-                          actions: [
-                            TextButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStatePropertyAll(Colors.blue)),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  appLocalizations.btn_cancel,
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                            TextButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(
-                                        Colors.redAccent)),
-                                onPressed: () {
-                                  context.read<SearchRfidBloc>().add(
-                                      DeleteAllEvent(itemModel
-                                          .map((e) => e.key_id)
-                                          .toList()));
-                                  itemModel.clear();
-                                  setState(() {});
+        // floatingActionButton: CircleAvatar(
+        //   backgroundColor: Colors.orangeAccent,
+        //   child: IconButton(
+        //       onPressed: () {
+        //         showDialog(
+        //             context: context,
+        //             builder: (context) => AlertDialog(
+        //                   title: Text(appLocalizations.popup_del_title_all),
+        //                   content: Text(appLocalizations.popup_del_sub_all),
+        //                   actions: [
+        //                     TextButton(
+        //                         style: ButtonStyle(
+        //                             backgroundColor:
+        //                                 MaterialStatePropertyAll(Colors.blue)),
+        //                         onPressed: () {
+        //                           Navigator.pop(context);
+        //                         },
+        //                         child: Text(
+        //                           appLocalizations.btn_cancel,
+        //                           style: TextStyle(color: Colors.white),
+        //                         )),
+        //                     TextButton(
+        //                         style: ButtonStyle(
+        //                             backgroundColor: MaterialStatePropertyAll(
+        //                                 Colors.redAccent)),
+        //                         onPressed: () {
+        //                           context.read<SearchRfidBloc>().add(
+        //                               DeleteAllEvent(itemModel
+        //                                   .map((e) => e.key_id)
+        //                                   .toList()));
+        //                           itemModel.clear();
+        //                           setState(() {});
 
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  appLocalizations.btn_delete,
-                                  style: TextStyle(color: Colors.white),
-                                ))
-                          ],
-                        ));
-              },
-              icon: Icon(
-                Icons.delete_forever,
-                color: Colors.white,
-              )),
-        ),
+        //                           Navigator.pop(context);
+        //                         },
+        //                         child: Text(
+        //                           appLocalizations.btn_delete,
+        //                           style: TextStyle(color: Colors.white),
+        //                         ))
+        //                   ],
+        //                 ));
+        //       },
+        //       icon: Icon(
+        //         Icons.delete_forever,
+        //         color: Colors.white,
+        //       )),
+        // ),
         body: Padding(
             padding: EdgeInsets.all(8.0),
             child: Column(
@@ -302,7 +326,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                               style: TextStyle(
                                                   color: Colors.white)),
                                           Text(
-                                              '${appLocalizations.txt_status} : ${itemModel[index].status}',
+                                              '${appLocalizations.txt_status} : ${itemModel[index].status == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found}',
                                               style: TextStyle(
                                                   color: Colors.white)),
                                         ],

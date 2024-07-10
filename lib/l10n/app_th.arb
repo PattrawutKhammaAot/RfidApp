@@ -1,5 +1,5 @@
 {
-    "menu_find_inventory": "เพิ่ม/สแกน",
+    "menu_find_inventory": "ค้นหาสินค้า",
     "hello": "สวัสดี",
     "hint_add_rfid": "เพิ่ม RFID",
     "btn_export_data":"ส่งออกข้อมูล",
@@ -7,7 +7,7 @@
     "btn_clear_all":"ล้างทั้งหมด",
     "@comment": "เมนูค้นหา",
     "menu_search": "ค้นหา",
-    "search": "ค้นหา",
+    "search": "ตรวจสอบID",
     "btn_status_title":"สถานะ:",
     "btn_status_select":"เลือก",
     "btn_status_found": "พบแล้ว",
@@ -60,6 +60,14 @@
     "txt_current_lang":"ภาษา",
     "current_lang":"ไทย",
     "txt_status":"สถานะ",
-    "txt_number_tag":"หมายเลข RFID"
-
+    "txt_number_tag":"หมายเลข RFID",
+    "txt_created":"สร้างเมื่อ",
+    "txt_updated":"เปลี่ยนแปลงเมื่อ",
+    "txt_connection":"กำลังเชื่อมต่อ RFID ...",
+    "txt_connection_success":"เชื่อมต่อ RFID สำเร็จ,ตั้งค่าระยะการยิงอีกครั้ง !",
+    "txt_delete_by_id":"คุณต้องการลบหมายเลข RFID",
+    "btn_export_template":"ส่งออก Template สำเร็จ",
+    "txt_serach_field":"ช่อง ค้นหา",
+    "txt_select":"เลือก",
+    "txt_menu_title":"เมนู"
 }

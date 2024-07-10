@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/app.dart';
 import 'package:rfid/blocs/master/master_rfid_bloc.dart';
 import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
+import 'package:rfid/config/appData.dart';
 import 'package:rfid/main.dart';
 import 'package:rfid/nativefunction/nativeFunction.dart';
 
@@ -41,6 +42,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
     BlocProvider.of<TempMasterBloc>(context).add(
       GetTempMasterEvent(),
     );
+    AppData.setPopupInfo("page_inventory");
     Future.delayed(Duration(milliseconds: 500), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       setState(() {});
@@ -52,6 +54,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
   @override
   void dispose() async {
     SDK_Function.setASCII(false);
+    SDK_Function.scan(false);
     // TODO: implement dispose
     super.dispose();
   }
@@ -146,7 +149,8 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                     qry.rfid_tag ==
                                     searchController.text.trim().toUpperCase())
                                 .isNotEmpty) {
-                              EasyLoading.showError("Duplicate Rfid");
+                              EasyLoading.showError(
+                                  appLocalizations.txt_duplicate_edit);
                             } else {
                               context.read<TempMasterBloc>().add(
                                   AddTempMasterEvent(TempMasterRfidData(
@@ -183,7 +187,8 @@ class _AddRfidPageState extends State<AddRfidPage> {
                           .where((qry) =>
                               qry.rfid_tag == value.trim().toUpperCase())
                           .isNotEmpty) {
-                        EasyLoading.showError("Duplicate Rfid");
+                        EasyLoading.showError(
+                            appLocalizations.txt_duplicate_edit);
                       } else {
                         context.read<TempMasterBloc>().add(AddTempMasterEvent(
                             TempMasterRfidData(
@@ -220,9 +225,44 @@ class _AddRfidPageState extends State<AddRfidPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      context
-                          .read<TempMasterBloc>()
-                          .add(ClearTempMasterEvent());
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                title:
+                                    Text(appLocalizations.popup_del_title_all),
+                                content:
+                                    Text(appLocalizations.popup_del_sub_all),
+                                actions: [
+                                  TextButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.blue)),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        appLocalizations.btn_cancel,
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                  TextButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.redAccent)),
+                                      onPressed: () {
+                                        context
+                                            .read<TempMasterBloc>()
+                                            .add(ClearTempMasterEvent());
+
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        appLocalizations.btn_delete,
+                                        style: TextStyle(color: Colors.white),
+                                      ))
+                                ],
+                              ));
                     },
                     child: Text(
                       appLocalizations.btn_clear_all,
@@ -373,7 +413,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                             Text(
                                               itemList[index].rssi != null
                                                   ? 'Rssi: -${itemList[index].rssi} dBm'
-                                                  : "Rssi: N/A",
+                                                  : "Rssi: ${appLocalizations.txt_not_found}",
                                               style: TextStyle(
                                                   color: Colors.white),
                                             ),
@@ -383,7 +423,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                           height: 5,
                                         ),
                                         Text(
-                                            'Created : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].created_at!)}',
+                                            '${appLocalizations.txt_created} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].created_at!)}',
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         Row(
@@ -392,12 +432,12 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                           children: [
                                             itemList[index].updated_at != null
                                                 ? Text(
-                                                    'Updated : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].updated_at!)}',
+                                                    '${appLocalizations.txt_updated} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].updated_at!)}',
                                                     style: TextStyle(
                                                         color: Colors.white))
                                                 : SizedBox.fromSize(),
                                             Text(
-                                                '${appLocalizations.txt_status} : ${itemList[index].status ?? "Not Found"} ',
+                                                '${appLocalizations.txt_status} : ${itemList[index] == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found} ',
                                                 style: TextStyle(
                                                     color: Colors.white)),
                                           ],

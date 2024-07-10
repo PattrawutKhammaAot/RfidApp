@@ -8,7 +8,7 @@
     "btn_clear_all":"Clear All",
     "@comment": "menu serach",
     "menu_search": "Search",
-    "search": "Search",
+    "search": "Check ID",
     "btn_status_title":"Status :",
     "btn_status_select":"Select",
     "btn_status_found": "Found",
@@ -64,5 +64,15 @@
     "txt_current_digits":"Current length",
     "txt_digits":"length",
     "txt_status":"Status",
-    "txt_number_tag":"RFID Tag"
+    "txt_number_tag":"RFID Tag",
+    "txt_created":"Created",
+    "txt_updated":"Updated",
+    "txt_connection":"Connection Device ...",
+    "txt_connection_success":"Connection Success. Please Try again",
+     "txt_delete_by_id":"Delete RFID",
+     "btn_export_template":"Export template Success !",
+     "txt_serach_field":"Search Field",
+     "txt_select":"Select",
+     "txt_menu_title":"Menu"
+
 }

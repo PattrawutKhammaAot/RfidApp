@@ -24,6 +24,7 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/safe_area_values.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
+import '../../config/appData.dart';
 import '../../nativefunction/nativeFunction.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -56,20 +57,25 @@ class _ScanScreenState extends State<ScanScreen> {
 
     zincDataSource = ZincDataSource(process: []);
     Future.delayed(Duration(milliseconds: 500), () {
-      SDK_Function.getASCII().then((value) {
-        isASCII = value;
-        focusNode.requestFocus();
-        fakefocusNode.requestFocus();
-        isHide = false;
-        setState(() {});
+      SDK_Function.setASCII(true).then((value) {
+        SDK_Function.getASCII().then((value) {
+          print("get $value");
+          isASCII = value;
+          focusNode.requestFocus();
+          fakefocusNode.requestFocus();
+          isHide = false;
+          setState(() {});
+        });
       });
     });
-
+    AppData.setPopupInfo("page_scan");
     super.initState();
   }
 
   @override
   void dispose() {
+    SDK_Function.setASCII(false);
+    SDK_Function.scan(false);
     // TODO: implement dispose
     super.dispose();
   }
@@ -176,7 +182,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                         color: Colors.white,
                                         child: Center(
                                           child: Text(
-                                            'RFID Tag',
+                                            appLocalizations.txt_number_tag,
                                           ),
                                         ),
                                       ),
@@ -200,7 +206,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                         color: Colors.white,
                                         child: Center(
                                           child: Text(
-                                            'Status',
+                                            appLocalizations.txt_status,
                                           ),
                                         ),
                                       ),
@@ -243,10 +249,48 @@ class _ScanScreenState extends State<ScanScreen> {
                               backgroundColor: MaterialStatePropertyAll<Color>(
                                   Colors.orangeAccent)),
                           onPressed: () async {
-                            _addTable.clear();
-                            setState(() {
-                              zincDataSource = ZincDataSource(process: []);
-                            });
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: Text(
+                                          appLocalizations.popup_del_title_all),
+                                      content: Text(
+                                          appLocalizations.popup_del_sub_all),
+                                      actions: [
+                                        TextButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStatePropertyAll(
+                                                        Colors.blue)),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text(
+                                              appLocalizations.btn_cancel,
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            )),
+                                        TextButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStatePropertyAll(
+                                                        Colors.redAccent)),
+                                            onPressed: () {
+                                              _addTable.clear();
+                                              setState(() {
+                                                zincDataSource =
+                                                    ZincDataSource(process: []);
+                                              });
+
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text(
+                                              appLocalizations.btn_delete,
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ))
+                                      ],
+                                    ));
                           },
                           child: Text(
                             appLocalizations.btn_clear_all,
@@ -484,7 +528,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
         await sink.close();
 
-        EasyLoading.showSuccess("Export Data Success");
+        EasyLoading.showSuccess(appLocalizations.txt_export_success);
         print(pathFile);
       } else {
         openAppSettings();
