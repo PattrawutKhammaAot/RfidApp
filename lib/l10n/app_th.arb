@@ -69,7 +69,5 @@
     "btn_export_template":"ส่งออก Template สำเร็จ",
     "txt_serach_field":"ช่อง ค้นหา",
     "txt_select":"เลือก",
-    "txt_menu_title":"เมนู",
-    "txt_warning_connection_find_inventory":"กรุณาเชื่อมต่อกับเครื่อง RFID เพื่อใช้เมนู ค้นหาสินค้า",
-    "txt_warning_connection_find_check_id":"กรุณาเชื่อมต่อกับเครื่อง RFID เพื่อใช้เมนู สแกน"
+    "txt_menu_title":"เมนู"
 }

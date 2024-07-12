@@ -117,6 +117,7 @@ class AppDb extends _$AppDb {
               ..where((tbl) => tbl.rfid_tag.equals(result.rfid_tag!)))
             .getSingleOrNull();
 
+        print(obj);
         if (obj != null) {
           await update(tagRunningRfid).replace(Tag_Running_RfidCompanion(
             key_id: Value(obj.key_id),

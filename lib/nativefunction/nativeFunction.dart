@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:rfid/config/appData.dart';
 
 class SDK_Function {
   static const platform = MethodChannel("com.example/customChannel");
@@ -10,7 +9,7 @@ class SDK_Function {
       status = !status;
       final result =
           await platform.invokeMethod('Scanned', {"statusTrg": true});
-
+      print(result);
       return result;
     } catch (e) {
       print('Error123: $e');
@@ -35,7 +34,7 @@ class SDK_Function {
       status = !status;
       final result =
           await platform.invokeMethod('SetASCII', {"isASCII": isACSII});
-
+      print(result);
       return result;
     } catch (e) {
       print('Error123: $e');
@@ -62,7 +61,7 @@ class SDK_Function {
   static Future<dynamic> getPower() async {
     try {
       dynamic result = await platform.invokeMethod('GetPower');
-
+      print("result: $result");
       return result;
     } catch (e) {
       print('Error123: $e');
@@ -176,23 +175,6 @@ class SDK_Function {
     } on PlatformException catch (e) {
       print("Error from platform channel: ${e.code}, ${e.message}");
       return null;
-    }
-  }
-
-  static Future<dynamic> checkConnectionRfid() async {
-    try {
-      dynamic result = await platform.invokeMethod('checkRfidSupport');
-      print("Check result =   $result");
-      if (result) {
-        AppData.setisConnect(true);
-        return result;
-      } else {
-        AppData.setisConnect(false);
-        return false;
-      }
-    } on PlatformException catch (e) {
-      print("Error from platform channel: ${e.code}, ${e.message}");
-      return false;
     }
   }
 

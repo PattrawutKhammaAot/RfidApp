@@ -34,7 +34,6 @@ class _AddRfidPageState extends State<AddRfidPage> {
   List<TempMasterRfidData> temp_itemList = [];
   bool isScanning = false;
   bool isFilter = false;
-  dynamic isConnect;
 
   @override
   void initState() {
@@ -46,10 +45,6 @@ class _AddRfidPageState extends State<AddRfidPage> {
     AppData.setPopupInfo("page_inventory");
     Future.delayed(Duration(milliseconds: 500), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      setState(() {});
-    });
-    SDK_Function.checkConnectionRfid().then((value) {
-      isConnect = value;
       setState(() {});
     });
     // TODO: implement initState
@@ -95,6 +90,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
         listeners: [
           BlocListener<TempMasterBloc, TempMasterState>(
               listener: (context, state) async {
+            print(state.status);
             if (state.status == FetchStatus.success) {
               itemList = state.data!;
               temp_itemList = itemList;
@@ -104,6 +100,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
               context.read<TempMasterBloc>().add(GetTempMasterEvent());
             }
             if (state.status == FetchStatus.deleteSuccess) {
+              print("object");
               context.read<TempMasterBloc>().add(GetTempMasterEvent());
             }
             if (state.status == FetchStatus.failed) {
@@ -113,85 +110,44 @@ class _AddRfidPageState extends State<AddRfidPage> {
             }
           })
         ],
-        child: isConnect == true && isConnect != null
-            ? Scaffold(
-                floatingActionButton: FloatingActionButton(
-                    backgroundColor: isScanning ? Colors.red : Colors.blue,
-                    shape: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(24)),
-                    onPressed: () async {
-                      if (!isScanning) {
-                        await SDK_Function.scan(true);
-                        isScanning = true;
-                      } else {
-                        await SDK_Function.scan(false);
-                        isScanning = false;
-                      }
-                      setState(() {});
-                    },
-                    child: Icon(
-                      isScanning ? Icons.stop : Icons.play_arrow,
-                      color: Colors.white,
-                    )),
-                body: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      child: TextField(
-                        controller: searchController,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: appLocalizations.hint_add_rfid,
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.add_circle),
-                              onPressed: () {
-                                if (searchController.text.isNotEmpty) {
-                                  if (itemList
-                                      .where((qry) =>
-                                          qry.rfid_tag ==
-                                          searchController.text
-                                              .trim()
-                                              .toUpperCase())
-                                      .isNotEmpty) {
-                                    EasyLoading.showError(
-                                        appLocalizations.txt_duplicate_edit);
-                                  } else {
-                                    context.read<TempMasterBloc>().add(
-                                        AddTempMasterEvent(TempMasterRfidData(
-                                            key_id: 0,
-                                            rfid_tag: searchController.text
-                                                .trim()
-                                                .toUpperCase(),
-                                            status: "Not Found",
-                                            created_at: DateTime.now())));
-                                  }
-
-                                  searchController.clear();
-                                  focusNode.requestFocus();
-                                }
-
-                                setState(() {});
-                              },
-                            )),
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            itemList = temp_itemList
-                                .where((element) => element.rfid_tag!
-                                    .contains(value.toUpperCase()))
-                                .toList();
-                            setState(() {});
-                          } else {
-                            itemList = temp_itemList;
-                            setState(() {});
-                          }
-                        },
-                        onSubmitted: (value) async {
-                          if (value.isNotEmpty) {
+        child: Scaffold(
+          floatingActionButton: FloatingActionButton(
+              backgroundColor: isScanning ? Colors.red : Colors.blue,
+              shape: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(24)),
+              onPressed: () async {
+                if (!isScanning) {
+                  await SDK_Function.scan(true);
+                  isScanning = true;
+                } else {
+                  await SDK_Function.scan(false);
+                  isScanning = false;
+                }
+                setState(() {});
+              },
+              child: Icon(
+                isScanning ? Icons.stop : Icons.play_arrow,
+                color: Colors.white,
+              )),
+          body: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(5),
+                child: TextField(
+                  controller: searchController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: appLocalizations.hint_add_rfid,
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add_circle),
+                        onPressed: () {
+                          if (searchController.text.isNotEmpty) {
                             if (itemList
                                 .where((qry) =>
-                                    qry.rfid_tag == value.trim().toUpperCase())
+                                    qry.rfid_tag ==
+                                    searchController.text.trim().toUpperCase())
                                 .isNotEmpty) {
                               EasyLoading.showError(
                                   appLocalizations.txt_duplicate_edit);
@@ -199,288 +155,309 @@ class _AddRfidPageState extends State<AddRfidPage> {
                               context.read<TempMasterBloc>().add(
                                   AddTempMasterEvent(TempMasterRfidData(
                                       key_id: 0,
-                                      rfid_tag: value.trim().toUpperCase(),
+                                      rfid_tag: searchController.text
+                                          .trim()
+                                          .toUpperCase(),
                                       status: "Not Found",
-                                      rssi: null,
                                       created_at: DateTime.now())));
                             }
 
                             searchController.clear();
                             focusNode.requestFocus();
                           }
+
+                          setState(() {});
                         },
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (itemList.isNotEmpty) {
-                              await exportDataToTxt();
-                            } else {
-                              EasyLoading.showError(appLocalizations.no_data);
-                            }
-                          },
-                          child: Text(
-                            appLocalizations.btn_export_data,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(Colors.blue)),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text(
-                                          appLocalizations.popup_del_title_all),
-                                      content: Text(
-                                          appLocalizations.popup_del_sub_all),
-                                      actions: [
-                                        TextButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStatePropertyAll(
-                                                        Colors.blue)),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              appLocalizations.btn_cancel,
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            )),
-                                        TextButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStatePropertyAll(
-                                                        Colors.redAccent)),
-                                            onPressed: () {
-                                              context
-                                                  .read<TempMasterBloc>()
-                                                  .add(ClearTempMasterEvent());
-
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              appLocalizations.btn_delete,
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ))
-                                      ],
-                                    ));
-                          },
-                          child: Text(
-                            appLocalizations.btn_clear_all,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(Colors.orange)),
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              isFilter = !isFilter;
-                              if (isFilter) {
-                                itemList.sort((a, b) {
-                                  int? rssiA = int.tryParse(a.rssi ?? "0");
-                                  int? rssiB = int.tryParse(b.rssi ?? "0");
-                                  return rssiA!.compareTo(rssiB!);
-                                });
-
-                                // do something
-                              } else {
-                                itemList.sort((a, b) {
-                                  int? rssiA = int.tryParse(a.rssi ?? "0");
-                                  int? rssiB = int.tryParse(b.rssi ?? "0");
-                                  return rssiB!.compareTo(rssiA!);
-                                });
-
-                                // do something
-                              }
-                              setState(() {});
-                            },
-                            icon: CircleAvatar(
-                              backgroundColor: Colors.blueAccent,
-                              child: Icon(
-                                isFilter
-                                    ? Icons.arrow_downward
-                                    : Icons.arrow_upward,
-                                color: Colors.white,
-                              ),
-                            ))
-                      ],
-                    ),
-                    FutureBuilder(future:
-                        SDK_Function.setTagScannedListener((epc, dbm) async {
-                      if (itemList.isNotEmpty) {
-                        if (itemList
-                            .where((qry) => qry.rfid_tag == epc.trim())
-                            .isNotEmpty) {
-                          context.read<TempMasterBloc>().add(
-                              UpdateTempMasterEvent(TempMasterRfidData(
-                                  key_id: 0,
-                                  rfid_tag: epc.trim(),
-                                  status: "Found",
-                                  rssi: dbm.trim(),
-                                  updated_at: DateTime.now())));
-                        }
+                      )),
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      itemList = temp_itemList
+                          .where((element) =>
+                              element.rfid_tag!.contains(value.toUpperCase()))
+                          .toList();
+                      setState(() {});
+                    } else {
+                      itemList = temp_itemList;
+                      setState(() {});
+                    }
+                  },
+                  onSubmitted: (value) async {
+                    if (value.isNotEmpty) {
+                      if (itemList
+                          .where((qry) =>
+                              qry.rfid_tag == value.trim().toUpperCase())
+                          .isNotEmpty) {
+                        EasyLoading.showError(
+                            appLocalizations.txt_duplicate_edit);
+                      } else {
+                        context.read<TempMasterBloc>().add(AddTempMasterEvent(
+                            TempMasterRfidData(
+                                key_id: 0,
+                                rfid_tag: value.trim().toUpperCase(),
+                                status: "Not Found",
+                                rssi: null,
+                                created_at: DateTime.now())));
                       }
-                    }), builder: (context, snapshot) {
-                      return itemList.isNotEmpty
-                          ? Expanded(
-                              child: ListView.builder(
-                                physics: BouncingScrollPhysics(),
-                                itemCount: itemList.length,
-                                itemBuilder: (context, index) {
-                                  return Slidable(
-                                    startActionPane: ActionPane(
-                                      motion: BehindMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 0),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          spacing: 1,
-                                          onPressed:
-                                              (BuildContext context) async {
-                                            await showAddRfidDialog(
-                                                context,
-                                                itemList[index].key_id,
-                                                itemList[index].rfid_tag!);
 
-                                            Future.delayed(
-                                                Duration(milliseconds: 500),
-                                                () async {
-                                              itemList = await appDb
-                                                  .getAllTempMaster();
-                                              temp_itemList = itemList;
-                                              setState(() {});
-                                            });
-                                          },
-                                          backgroundColor: Colors.green,
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.delete,
-                                          label: appLocalizations.btn_edit,
-                                        ),
-                                      ],
-                                    ),
-                                    endActionPane: ActionPane(
-                                      motion: BehindMotion(),
-                                      children: [
-                                        SlidableAction(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 0),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          spacing: 1,
-                                          onPressed: (BuildContext context) {
-                                            context.read<TempMasterBloc>().add(
-                                                DeleteTempMasterEvent(
-                                                    itemList[index].key_id));
-                                            itemList.removeAt(index);
-                                            // context
-                                            //     .read<SearchRfidBloc>()
-                                            //     .add(DeleteRfidEvent(itemModel[index].key_id!));
-
-                                            setState(() {});
-                                          },
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.white,
-                                          icon: Icons.delete,
-                                          label: appLocalizations.btn_delete,
-                                        ),
-                                      ],
-                                    ),
-                                    child: GestureDetector(
-                                      child: Card(
-                                        color: itemList[index].status == "Found"
-                                            ? Colors.green
-                                            : Colors.red,
-                                        margin: EdgeInsets.all(4),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      '${appLocalizations.txt_number_tag} : ${itemList[index].rfid_tag}',
-                                                      maxLines: 3,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    itemList[index].rssi != null
-                                                        ? 'Rssi: -${itemList[index].rssi} dBm'
-                                                        : "Rssi: ${appLocalizations.txt_not_found}",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                  '${appLocalizations.txt_created} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].created_at!)}',
-                                                  style: TextStyle(
-                                                      color: Colors.white)),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  itemList[index].updated_at !=
-                                                          null
-                                                      ? Text(
-                                                          '${appLocalizations.txt_updated} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].updated_at!)}',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white))
-                                                      : SizedBox.fromSize(),
-                                                  Text(
-                                                      '${appLocalizations.txt_status} : ${itemList[index] == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found} ',
-                                                      style: TextStyle(
-                                                          color: Colors.white)),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                          : Center(
-                              child: Text(appLocalizations.no_data),
-                            );
-                    })
-                  ],
+                      searchController.clear();
+                      focusNode.requestFocus();
+                    }
+                  },
                 ),
-              )
-            : Center(
-                child: Text(
-                    appLocalizations.txt_warning_connection_find_inventory)),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (itemList.isNotEmpty) {
+                        await exportDataToTxt();
+                      } else {
+                        EasyLoading.showError(appLocalizations.no_data);
+                      }
+                    },
+                    child: Text(
+                      appLocalizations.btn_export_data,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                title:
+                                    Text(appLocalizations.popup_del_title_all),
+                                content:
+                                    Text(appLocalizations.popup_del_sub_all),
+                                actions: [
+                                  TextButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.blue)),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        appLocalizations.btn_cancel,
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                  TextButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStatePropertyAll(
+                                                  Colors.redAccent)),
+                                      onPressed: () {
+                                        context
+                                            .read<TempMasterBloc>()
+                                            .add(ClearTempMasterEvent());
+
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        appLocalizations.btn_delete,
+                                        style: TextStyle(color: Colors.white),
+                                      ))
+                                ],
+                              ));
+                    },
+                    child: Text(
+                      appLocalizations.btn_clear_all,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.orange)),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        isFilter = !isFilter;
+                        if (isFilter) {
+                          itemList.sort((a, b) {
+                            int? rssiA = int.tryParse(a.rssi ?? "0");
+                            int? rssiB = int.tryParse(b.rssi ?? "0");
+                            return rssiA!.compareTo(rssiB!);
+                          });
+
+                          // do something
+                        } else {
+                          itemList.sort((a, b) {
+                            int? rssiA = int.tryParse(a.rssi ?? "0");
+                            int? rssiB = int.tryParse(b.rssi ?? "0");
+                            return rssiB!.compareTo(rssiA!);
+                          });
+
+                          // do something
+                        }
+                        setState(() {});
+                      },
+                      icon: CircleAvatar(
+                        backgroundColor: Colors.blueAccent,
+                        child: Icon(
+                          isFilter ? Icons.arrow_downward : Icons.arrow_upward,
+                          color: Colors.white,
+                        ),
+                      ))
+                ],
+              ),
+              FutureBuilder(
+                  future: SDK_Function.setTagScannedListener((epc, dbm) async {
+                if (itemList.isNotEmpty) {
+                  if (itemList
+                      .where((qry) => qry.rfid_tag == epc.trim())
+                      .isNotEmpty) {
+                    context.read<TempMasterBloc>().add(UpdateTempMasterEvent(
+                        TempMasterRfidData(
+                            key_id: 0,
+                            rfid_tag: epc.trim(),
+                            status: "Found",
+                            rssi: dbm.trim(),
+                            updated_at: DateTime.now())));
+                  }
+                }
+              }), builder: (context, snapshot) {
+                return itemList.isNotEmpty
+                    ? Expanded(
+                        child: ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          itemCount: itemList.length,
+                          itemBuilder: (context, index) {
+                            return Slidable(
+                              startActionPane: ActionPane(
+                                motion: BehindMotion(),
+                                children: [
+                                  SlidableAction(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 0),
+                                    borderRadius: BorderRadius.circular(12),
+                                    spacing: 1,
+                                    onPressed: (BuildContext context) async {
+                                      await showAddRfidDialog(
+                                          context,
+                                          itemList[index].key_id,
+                                          itemList[index].rfid_tag!);
+
+                                      Future.delayed(
+                                          Duration(milliseconds: 500),
+                                          () async {
+                                        itemList =
+                                            await appDb.getAllTempMaster();
+                                        temp_itemList = itemList;
+                                        setState(() {});
+                                      });
+                                    },
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    icon: Icons.delete,
+                                    label: appLocalizations.btn_edit,
+                                  ),
+                                ],
+                              ),
+                              endActionPane: ActionPane(
+                                motion: BehindMotion(),
+                                children: [
+                                  SlidableAction(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 0),
+                                    borderRadius: BorderRadius.circular(12),
+                                    spacing: 1,
+                                    onPressed: (BuildContext context) {
+                                      context.read<TempMasterBloc>().add(
+                                          DeleteTempMasterEvent(
+                                              itemList[index].key_id));
+                                      itemList.removeAt(index);
+                                      // context
+                                      //     .read<SearchRfidBloc>()
+                                      //     .add(DeleteRfidEvent(itemModel[index].key_id!));
+
+                                      setState(() {});
+                                    },
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    icon: Icons.delete,
+                                    label: appLocalizations.btn_delete,
+                                  ),
+                                ],
+                              ),
+                              child: GestureDetector(
+                                child: Card(
+                                  color: itemList[index].status == "Found"
+                                      ? Colors.green
+                                      : Colors.red,
+                                  margin: EdgeInsets.all(4),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                '${appLocalizations.txt_number_tag} : ${itemList[index].rfid_tag}',
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            Text(
+                                              itemList[index].rssi != null
+                                                  ? 'Rssi: -${itemList[index].rssi} dBm'
+                                                  : "Rssi: ${appLocalizations.txt_not_found}",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                            '${appLocalizations.txt_created} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].created_at!)}',
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            itemList[index].updated_at != null
+                                                ? Text(
+                                                    '${appLocalizations.txt_updated} : ${DateFormat('dd-MM-yyyy HH:mm').format(itemList[index].updated_at!)}',
+                                                    style: TextStyle(
+                                                        color: Colors.white))
+                                                : SizedBox.fromSize(),
+                                            Text(
+                                                '${appLocalizations.txt_status} : ${itemList[index] == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found} ',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Text(appLocalizations.no_data),
+                      );
+              })
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -596,6 +573,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
       } else {
         openAppSettings();
       }
+      print("object");
     } catch (e, s) {
       print("$e$s");
     }

@@ -29,7 +29,7 @@ class AppData {
 
   static setPopupInfo(String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    print(value);
     // await storage.write(key: "ApiUrl", value: value);
     await prefs.setString("popupInfo", value);
   }
@@ -39,19 +39,5 @@ class AppData {
     // String? value = await storage.read(key: "ApiUrl");
     // return value;
     return prefs.getString("popupInfo");
-  }
-
-  static setisConnect(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // await storage.write(key: "ApiUrl", value: value);
-    await prefs.setBool("isConnect", value);
-  }
-
-  static Future<dynamic> getisConnect() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String? value = await storage.read(key: "ApiUrl");
-    // return value;
-    return prefs.getBool("isConnect");
   }
 }
