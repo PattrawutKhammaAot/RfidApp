@@ -211,6 +211,19 @@ class Master_rfidData extends DataClass implements Insertable<Master_rfidData> {
         created_at: created_at.present ? created_at.value : this.created_at,
         updated_at: updated_at.present ? updated_at.value : this.updated_at,
       );
+  Master_rfidData copyWithCompanion(Master_rfidCompanion data) {
+    return Master_rfidData(
+      key_id: data.key_id.present ? data.key_id.value : this.key_id,
+      rfid_tag: data.rfid_tag.present ? data.rfid_tag.value : this.rfid_tag,
+      status: data.status.present ? data.status.value : this.status,
+      rssi: data.rssi.present ? data.rssi.value : this.rssi,
+      created_at:
+          data.created_at.present ? data.created_at.value : this.created_at,
+      updated_at:
+          data.updated_at.present ? data.updated_at.value : this.updated_at,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Master_rfidData(')
@@ -545,6 +558,19 @@ class Tag_Running_RfidData extends DataClass
         created_at: created_at.present ? created_at.value : this.created_at,
         updated_at: updated_at.present ? updated_at.value : this.updated_at,
       );
+  Tag_Running_RfidData copyWithCompanion(Tag_Running_RfidCompanion data) {
+    return Tag_Running_RfidData(
+      key_id: data.key_id.present ? data.key_id.value : this.key_id,
+      rfid_tag: data.rfid_tag.present ? data.rfid_tag.value : this.rfid_tag,
+      status: data.status.present ? data.status.value : this.status,
+      rssi: data.rssi.present ? data.rssi.value : this.rssi,
+      created_at:
+          data.created_at.present ? data.created_at.value : this.created_at,
+      updated_at:
+          data.updated_at.present ? data.updated_at.value : this.updated_at,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Tag_Running_RfidData(')
@@ -878,6 +904,19 @@ class TempMasterRfidData extends DataClass
         created_at: created_at.present ? created_at.value : this.created_at,
         updated_at: updated_at.present ? updated_at.value : this.updated_at,
       );
+  TempMasterRfidData copyWithCompanion(TempMasterRfidCompanion data) {
+    return TempMasterRfidData(
+      key_id: data.key_id.present ? data.key_id.value : this.key_id,
+      rfid_tag: data.rfid_tag.present ? data.rfid_tag.value : this.rfid_tag,
+      status: data.status.present ? data.status.value : this.status,
+      rssi: data.rssi.present ? data.rssi.value : this.rssi,
+      created_at:
+          data.created_at.present ? data.created_at.value : this.created_at,
+      updated_at:
+          data.updated_at.present ? data.updated_at.value : this.updated_at,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TempMasterRfidData(')
@@ -1369,7 +1408,7 @@ class $ViewTempMasterView
 
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
-  _$AppDbManager get managers => _$AppDbManager(this);
+  $AppDbManager get managers => $AppDbManager(this);
   late final $Master_rfidTable masterRfid = $Master_rfidTable(this);
   late final $Tag_Running_RfidTable tagRunningRfid =
       $Tag_Running_RfidTable(this);
@@ -1391,7 +1430,7 @@ abstract class _$AppDb extends GeneratedDatabase {
       ];
 }
 
-typedef $$Master_rfidTableInsertCompanionBuilder = Master_rfidCompanion
+typedef $$Master_rfidTableCreateCompanionBuilder = Master_rfidCompanion
     Function({
   Value<int> key_id,
   Value<String?> rfid_tag,
@@ -1416,8 +1455,7 @@ class $$Master_rfidTableTableManager extends RootTableManager<
     Master_rfidData,
     $$Master_rfidTableFilterComposer,
     $$Master_rfidTableOrderingComposer,
-    $$Master_rfidTableProcessedTableManager,
-    $$Master_rfidTableInsertCompanionBuilder,
+    $$Master_rfidTableCreateCompanionBuilder,
     $$Master_rfidTableUpdateCompanionBuilder> {
   $$Master_rfidTableTableManager(_$AppDb db, $Master_rfidTable table)
       : super(TableManagerState(
@@ -1427,9 +1465,7 @@ class $$Master_rfidTableTableManager extends RootTableManager<
               $$Master_rfidTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$Master_rfidTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$Master_rfidTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1445,7 +1481,7 @@ class $$Master_rfidTableTableManager extends RootTableManager<
             created_at: created_at,
             updated_at: updated_at,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1462,18 +1498,6 @@ class $$Master_rfidTableTableManager extends RootTableManager<
             updated_at: updated_at,
           ),
         ));
-}
-
-class $$Master_rfidTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDb,
-    $Master_rfidTable,
-    Master_rfidData,
-    $$Master_rfidTableFilterComposer,
-    $$Master_rfidTableOrderingComposer,
-    $$Master_rfidTableProcessedTableManager,
-    $$Master_rfidTableInsertCompanionBuilder,
-    $$Master_rfidTableUpdateCompanionBuilder> {
-  $$Master_rfidTableProcessedTableManager(super.$state);
 }
 
 class $$Master_rfidTableFilterComposer
@@ -1544,7 +1568,7 @@ class $$Master_rfidTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$Tag_Running_RfidTableInsertCompanionBuilder
+typedef $$Tag_Running_RfidTableCreateCompanionBuilder
     = Tag_Running_RfidCompanion Function({
   Value<int> key_id,
   Value<String?> rfid_tag,
@@ -1569,8 +1593,7 @@ class $$Tag_Running_RfidTableTableManager extends RootTableManager<
     Tag_Running_RfidData,
     $$Tag_Running_RfidTableFilterComposer,
     $$Tag_Running_RfidTableOrderingComposer,
-    $$Tag_Running_RfidTableProcessedTableManager,
-    $$Tag_Running_RfidTableInsertCompanionBuilder,
+    $$Tag_Running_RfidTableCreateCompanionBuilder,
     $$Tag_Running_RfidTableUpdateCompanionBuilder> {
   $$Tag_Running_RfidTableTableManager(_$AppDb db, $Tag_Running_RfidTable table)
       : super(TableManagerState(
@@ -1580,9 +1603,7 @@ class $$Tag_Running_RfidTableTableManager extends RootTableManager<
               $$Tag_Running_RfidTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$Tag_Running_RfidTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$Tag_Running_RfidTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1598,7 +1619,7 @@ class $$Tag_Running_RfidTableTableManager extends RootTableManager<
             created_at: created_at,
             updated_at: updated_at,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1615,19 +1636,6 @@ class $$Tag_Running_RfidTableTableManager extends RootTableManager<
             updated_at: updated_at,
           ),
         ));
-}
-
-class $$Tag_Running_RfidTableProcessedTableManager
-    extends ProcessedTableManager<
-        _$AppDb,
-        $Tag_Running_RfidTable,
-        Tag_Running_RfidData,
-        $$Tag_Running_RfidTableFilterComposer,
-        $$Tag_Running_RfidTableOrderingComposer,
-        $$Tag_Running_RfidTableProcessedTableManager,
-        $$Tag_Running_RfidTableInsertCompanionBuilder,
-        $$Tag_Running_RfidTableUpdateCompanionBuilder> {
-  $$Tag_Running_RfidTableProcessedTableManager(super.$state);
 }
 
 class $$Tag_Running_RfidTableFilterComposer
@@ -1698,7 +1706,7 @@ class $$Tag_Running_RfidTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$TempMasterRfidTableInsertCompanionBuilder = TempMasterRfidCompanion
+typedef $$TempMasterRfidTableCreateCompanionBuilder = TempMasterRfidCompanion
     Function({
   Value<int> key_id,
   Value<String?> rfid_tag,
@@ -1723,8 +1731,7 @@ class $$TempMasterRfidTableTableManager extends RootTableManager<
     TempMasterRfidData,
     $$TempMasterRfidTableFilterComposer,
     $$TempMasterRfidTableOrderingComposer,
-    $$TempMasterRfidTableProcessedTableManager,
-    $$TempMasterRfidTableInsertCompanionBuilder,
+    $$TempMasterRfidTableCreateCompanionBuilder,
     $$TempMasterRfidTableUpdateCompanionBuilder> {
   $$TempMasterRfidTableTableManager(_$AppDb db, $TempMasterRfidTable table)
       : super(TableManagerState(
@@ -1734,9 +1741,7 @@ class $$TempMasterRfidTableTableManager extends RootTableManager<
               $$TempMasterRfidTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$TempMasterRfidTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TempMasterRfidTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1752,7 +1757,7 @@ class $$TempMasterRfidTableTableManager extends RootTableManager<
             created_at: created_at,
             updated_at: updated_at,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<int> key_id = const Value.absent(),
             Value<String?> rfid_tag = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -1769,18 +1774,6 @@ class $$TempMasterRfidTableTableManager extends RootTableManager<
             updated_at: updated_at,
           ),
         ));
-}
-
-class $$TempMasterRfidTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDb,
-    $TempMasterRfidTable,
-    TempMasterRfidData,
-    $$TempMasterRfidTableFilterComposer,
-    $$TempMasterRfidTableOrderingComposer,
-    $$TempMasterRfidTableProcessedTableManager,
-    $$TempMasterRfidTableInsertCompanionBuilder,
-    $$TempMasterRfidTableUpdateCompanionBuilder> {
-  $$TempMasterRfidTableProcessedTableManager(super.$state);
 }
 
 class $$TempMasterRfidTableFilterComposer
@@ -1851,9 +1844,9 @@ class $$TempMasterRfidTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-class _$AppDbManager {
+class $AppDbManager {
   final _$AppDb _db;
-  _$AppDbManager(this._db);
+  $AppDbManager(this._db);
   $$Master_rfidTableTableManager get masterRfid =>
       $$Master_rfidTableTableManager(_db, _db.masterRfid);
   $$Tag_Running_RfidTableTableManager get tagRunningRfid =>
