@@ -148,7 +148,6 @@ class ScanrfidCodeBloc extends Bloc<ScanrfidCodeEvent, ScanrfidCodeState> {
       var result = await appDb.totalMaster();
       var totalLoss = await appDb.totalFilter("Not Found");
       var totalFound = await appDb.totalFilter("Found");
-      print("Total Master $result NotFound $totalLoss Found $totalFound");
 
       TotalScanModel post = TotalScanModel(
           totalMaster: result,

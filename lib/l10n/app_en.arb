@@ -73,6 +73,8 @@
      "btn_export_template":"Export template Success !",
      "txt_serach_field":"Search Field",
      "txt_select":"Select",
-     "txt_menu_title":"Menu"
+     "txt_menu_title":"Menu",
+    "txt_warning_connection_find_inventory":"Please Connection RFID ",
+    "txt_warning_connection_find_check_id":"Please Connection RFID "
 
 }

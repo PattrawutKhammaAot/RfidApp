@@ -51,6 +51,12 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     int lengthOfASCII = 10;
     private SoundTool soundTool;
 
+    // Class-level variable to store RFID support status
+private Boolean isRfidSupported = false;
+
+// Synchronization lock object
+private final Object lock = new Object();
+
     @Override
     public void onAttachedToEngine(FlutterPluginBinding binding) {
         channel = new MethodChannel(binding.getBinaryMessenger(), "com.example/customChannel");
@@ -63,18 +69,25 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     }
 
     private void initRfid(Context context) {
+        if (!isRfidSupported) {
+            Log.d(TAG, "RFID not supported on this device.");
+          
+            // Proceed with the application's initialization without RFID functionalities
+            // You might want to notify the user or adjust the UI accordingly
+            return;
+        }
+    
         try {
             RFIDSDKManager.getInstance().init(new InitListener() {
                 @Override
                 public void onStatus(boolean status) {
                     if (status) {
-                        Log.d(TAG, "initRfid()  success.");
                         mRfidManager = RFIDSDKManager.getInstance().getRfidManager();
                         callback = new ScanCallback();
-                       
                         mRfidManager.registerCallback(callback);
                         soundTool = SoundTool.getInstance(context);
-
+                        Log.d(TAG, "initRfid()  success.");
+                      
                     } else {
                         Log.d(TAG, "initRfid  fail.");
                     }
@@ -88,6 +101,44 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
 
         }
 
+    }
+
+    
+    private boolean checkRfidSupport() {
+        // If we already checked RFID support, return the stored value
+        if (isRfidSupported != null) {
+            return isRfidSupported;
+        }
+    
+        RFIDSDKManager.getInstance().init(new InitListener() {
+            @Override
+            public void onStatus(boolean status) {
+                Log.d(TAG, "RFID support status: " + status);
+                synchronized (lock) {
+                    if(status == true){
+                        isRfidSupported = status;
+                    }else{
+                        isRfidSupported = false;
+                    }
+                    
+                    lock.notifyAll(); // Notify waiting thread
+                }
+            }
+        });
+    
+        // Wait for the callback to be called
+        synchronized (lock) {
+            while (isRfidSupported == null) {
+                try {
+                    lock.wait(); // Wait for the callback to set the status
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    // Handle interrupted exception
+                }
+            }
+        }
+    
+        return isRfidSupported;
     }
 
     class ScanCallback implements IRfidCallback {
@@ -251,6 +302,9 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                     result.success(e);
                 }
             break;
+            case "checkRfidSupport":
+                result.success(checkRfidSupport());
+                break;
 
             
             default:

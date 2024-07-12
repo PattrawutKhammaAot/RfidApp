@@ -48,6 +48,7 @@ class _ScanScreenState extends State<ScanScreen> {
   bool isScanning = false;
   bool isASCII = false;
   bool isHide = true;
+  dynamic isConnect;
 
   @override
   void initState() {
@@ -59,7 +60,6 @@ class _ScanScreenState extends State<ScanScreen> {
     Future.delayed(Duration(milliseconds: 500), () {
       SDK_Function.setASCII(true).then((value) {
         SDK_Function.getASCII().then((value) {
-          print("get $value");
           isASCII = value;
           focusNode.requestFocus();
           fakefocusNode.requestFocus();
@@ -67,6 +67,9 @@ class _ScanScreenState extends State<ScanScreen> {
           setState(() {});
         });
       });
+    });
+    AppData.getisConnect().then((value) {
+      isConnect = value;
     });
     AppData.setPopupInfo("page_scan");
     super.initState();
@@ -99,290 +102,301 @@ class _ScanScreenState extends State<ScanScreen> {
           if (state.status == FetchStatus.failed) {}
         })
       ],
-      child: Scaffold(
-          body: KeyboardListener(
-              focusNode: focusNode,
-              autofocus: true,
-              onKeyEvent: (e) async {
-                const customKeyId = 0x110000020b;
-                if (e is KeyDownEvent) {
-                  if (e.logicalKey.keyId == customKeyId) {
-                    await SDK_Function.scan(true);
-                    isScanning = true;
-                  } else {
-                    await SDK_Function.scan(true);
-                    isScanning = true;
-                  }
+      child: isConnect == true && isConnect != null
+          ? Scaffold(
+              body: KeyboardListener(
+                  focusNode: focusNode,
+                  autofocus: true,
+                  onKeyEvent: (e) async {
+                    const customKeyId = 0x110000020b;
+                    if (e is KeyDownEvent) {
+                      if (e.logicalKey.keyId == customKeyId) {
+                        await SDK_Function.scan(true);
+                        isScanning = true;
+                      } else {
+                        await SDK_Function.scan(true);
+                        isScanning = true;
+                      }
 
-                  setState(() {});
-                } else if (e is KeyUpEvent) {
-                  if (e.logicalKey.keyId == customKeyId) {
-                    await SDK_Function.scan(false);
-                    isScanning = false;
-                  } else {
-                    await SDK_Function.scan(false);
-                    isScanning = false;
-                  }
-                  setState(() {});
-                }
-              },
-              child: Column(
-                children: [
-                  Visibility(
-                      visible: isHide,
-                      child: Center(
-                        child: SizedBox(
-                          height: 1,
-                          width: 1,
-                          child: TextFormField(
-                            focusNode: fakefocusNode,
-                            controller: _controller,
-                          ),
-                        ),
-                      )),
-                  SizedBox(
-                    height: 0,
-                  ),
-                  zincDataSource != null
-                      ? FutureBuilder(
-                          future:
-                              SDK_Function.setTagScannedListener((epc, dbm) {
-                            onEventScan(epc.trim(), dbm);
-                            // _addTable.add(tempRfidItemList(
-                            //   rfid_tag: epc,
-                            //   rssi: dbm,
-                            //   status: "Found",
-                            // ));
-                            // setState(() {
-                            //   zincDataSource =
-                            //       ZincDataSource(process: _addTable);
-                            // });
-                          }),
-                          builder: (context, snapshot) {
-                            return Expanded(
-                              flex: 2,
-                              child: SfDataGrid(
-                                onFilterChanged: (details) {
-                                  print(details.column);
-                                },
-                                source: zincDataSource!,
-                                headerGridLinesVisibility:
-                                    GridLinesVisibility.both,
-                                gridLinesVisibility: GridLinesVisibility.both,
-                                selectionMode: SelectionMode.multiple,
-                                allowPullToRefresh: true,
-                                allowSorting: true,
-                                allowColumnsResizing: true,
-                                columnWidthMode: ColumnWidthMode.fill,
-                                columns: <GridColumn>[
-                                  GridColumn(
-                                      visible: true,
-                                      columnName: 'rfid_tag',
-                                      label: Container(
-                                        color: Colors.white,
-                                        child: Center(
-                                          child: Text(
-                                            appLocalizations.txt_number_tag,
-                                          ),
-                                        ),
-                                      ),
-                                      allowSorting: false),
-                                  GridColumn(
-                                      visible: true,
-                                      columnName: 'RSSI',
-                                      label: Container(
-                                        color: Colors.white,
-                                        child: Center(
-                                          child: Text(
-                                            'Rssi',
-                                          ),
-                                        ),
-                                      ),
-                                      allowSorting: true),
-                                  GridColumn(
-                                      visible: true,
-                                      columnName: 'Status',
-                                      label: Container(
-                                        color: Colors.white,
-                                        child: Center(
-                                          child: Text(
-                                            appLocalizations.txt_status,
-                                          ),
-                                        ),
-                                      ),
-                                      allowSorting: false),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                      : SizedBox.fromSize(),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      setState(() {});
+                    } else if (e is KeyUpEvent) {
+                      if (e.logicalKey.keyId == customKeyId) {
+                        await SDK_Function.scan(false);
+                        isScanning = false;
+                      } else {
+                        await SDK_Function.scan(false);
+                        isScanning = false;
+                      }
+                      setState(() {});
+                    }
+                  },
+                  child: Column(
                     children: [
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll<Color>(
-                                  isScanning
-                                      ? Colors.red
-                                      : Colors.grey.withOpacity(0.5))),
-                          onPressed: () async {
-                            if (!isScanning) {
-                              await SDK_Function.scan(true);
-                              isScanning = true;
-                            } else {
-                              await SDK_Function.scan(false);
-                              isScanning = false;
-                            }
-                            setState(() {});
-                          },
-                          child: Text(
-                              isScanning
-                                  ? appLocalizations.btn_stop_scan
-                                  : appLocalizations.btn_start_scan,
-                              style: TextStyle(color: Colors.white))),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll<Color>(
-                                  Colors.orangeAccent)),
-                          onPressed: () async {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text(
-                                          appLocalizations.popup_del_title_all),
-                                      content: Text(
-                                          appLocalizations.popup_del_sub_all),
-                                      actions: [
-                                        TextButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStatePropertyAll(
-                                                        Colors.blue)),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              appLocalizations.btn_cancel,
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            )),
-                                        TextButton(
-                                            style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStatePropertyAll(
-                                                        Colors.redAccent)),
-                                            onPressed: () {
-                                              _addTable.clear();
-                                              setState(() {
-                                                zincDataSource =
-                                                    ZincDataSource(process: []);
-                                              });
-
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              appLocalizations.btn_delete,
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ))
-                                      ],
-                                    ));
-                          },
-                          child: Text(
-                            appLocalizations.btn_clear_all,
-                            style: TextStyle(color: Colors.white),
-                          )),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll<Color>(
-                                  _addTable.isNotEmpty
-                                      ? Colors.blue
-                                      : Colors.grey.withOpacity(0.5))),
-                          onPressed: () async {
-                            if (_addTable.isNotEmpty) {
-                              await exportDataToTxt();
-                            } else {
-                              EasyLoading.showError(appLocalizations.no_data);
-                            }
-                          },
-                          child: Text(
-                            appLocalizations.btn_export_data,
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    ],
-                  ),
-                  zincDataSource != null
-                      ? Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                padding: EdgeInsets.only(left: 10, right: 10),
-                                width: MediaQuery.of(context).size.width,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.1,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.white,
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.grey,
-                                        offset: Offset(
-                                          1.0,
-                                          1.0,
-                                        ),
-                                        blurRadius: 5.0,
-                                        spreadRadius: 2.0,
-                                      ), //BoxShadow
-                                      BoxShadow(
-                                        color: Colors.white,
-                                        offset: Offset(0.0, 0.0),
-                                        blurRadius: 0.0,
-                                        spreadRadius: 0.0,
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                        color: Colors.white, width: 1)),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Text(
-                                        "${appLocalizations.txt_total}: ${_addTable.length}"),
-                                    Text(
-                                        "${appLocalizations.txt_found}: ${_addTable.where((element) => element.status == "Found").toList().length}"),
-                                    Text(
-                                        "${appLocalizations.txt_not_found}: ${_addTable.where((element) => element.status != "Found").toList().length}"),
-                                    Row(
-                                      children: <Widget>[
-                                        Text("ASCII"),
-                                        Checkbox(
-                                          value: isASCII,
-                                          onChanged: (value) async {
-                                            await SDK_Function.setASCII(value!);
-                                            setState(() {
-                                              isASCII = value;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
+                      Visibility(
+                          visible: isHide,
+                          child: Center(
+                            child: SizedBox(
+                              height: 1,
+                              width: 1,
+                              child: TextFormField(
+                                focusNode: fakefocusNode,
+                                controller: _controller,
                               ),
                             ),
-                          ],
-                        )
-                      : SizedBox.fromSize(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                ],
-              ))),
+                          )),
+                      SizedBox(
+                        height: 0,
+                      ),
+                      zincDataSource != null
+                          ? FutureBuilder(
+                              future: SDK_Function.setTagScannedListener(
+                                  (epc, dbm) {
+                                onEventScan(epc.trim(), dbm);
+                                // _addTable.add(tempRfidItemList(
+                                //   rfid_tag: epc,
+                                //   rssi: dbm,
+                                //   status: "Found",
+                                // ));
+                                // setState(() {
+                                //   zincDataSource =
+                                //       ZincDataSource(process: _addTable);
+                                // });
+                              }),
+                              builder: (context, snapshot) {
+                                return Expanded(
+                                  flex: 2,
+                                  child: SfDataGrid(
+                                    onFilterChanged: (details) {
+                                      print(details.column);
+                                    },
+                                    source: zincDataSource!,
+                                    headerGridLinesVisibility:
+                                        GridLinesVisibility.both,
+                                    gridLinesVisibility:
+                                        GridLinesVisibility.both,
+                                    selectionMode: SelectionMode.multiple,
+                                    allowPullToRefresh: true,
+                                    allowSorting: true,
+                                    allowColumnsResizing: true,
+                                    columnWidthMode: ColumnWidthMode.fill,
+                                    columns: <GridColumn>[
+                                      GridColumn(
+                                          visible: true,
+                                          columnName: 'rfid_tag',
+                                          label: Container(
+                                            color: Colors.white,
+                                            child: Center(
+                                              child: Text(
+                                                appLocalizations.txt_number_tag,
+                                              ),
+                                            ),
+                                          ),
+                                          allowSorting: false),
+                                      GridColumn(
+                                          visible: true,
+                                          columnName: 'RSSI',
+                                          label: Container(
+                                            color: Colors.white,
+                                            child: Center(
+                                              child: Text(
+                                                'Rssi',
+                                              ),
+                                            ),
+                                          ),
+                                          allowSorting: true),
+                                      GridColumn(
+                                          visible: true,
+                                          columnName: 'Status',
+                                          label: Container(
+                                            color: Colors.white,
+                                            child: Center(
+                                              child: Text(
+                                                appLocalizations.txt_status,
+                                              ),
+                                            ),
+                                          ),
+                                          allowSorting: false),
+                                    ],
+                                  ),
+                                );
+                              },
+                            )
+                          : SizedBox.fromSize(),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll<Color>(isScanning
+                                          ? Colors.red
+                                          : Colors.grey.withOpacity(0.5))),
+                              onPressed: () async {
+                                if (!isScanning) {
+                                  await SDK_Function.scan(true);
+                                  isScanning = true;
+                                } else {
+                                  await SDK_Function.scan(false);
+                                  isScanning = false;
+                                }
+                                setState(() {});
+                              },
+                              child: Text(
+                                  isScanning
+                                      ? appLocalizations.btn_stop_scan
+                                      : appLocalizations.btn_start_scan,
+                                  style: TextStyle(color: Colors.white))),
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll<Color>(
+                                          Colors.orangeAccent)),
+                              onPressed: () async {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          title: Text(appLocalizations
+                                              .popup_del_title_all),
+                                          content: Text(appLocalizations
+                                              .popup_del_sub_all),
+                                          actions: [
+                                            TextButton(
+                                                style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStatePropertyAll(
+                                                            Colors.blue)),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text(
+                                                  appLocalizations.btn_cancel,
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                )),
+                                            TextButton(
+                                                style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStatePropertyAll(
+                                                            Colors.redAccent)),
+                                                onPressed: () {
+                                                  _addTable.clear();
+                                                  setState(() {
+                                                    zincDataSource =
+                                                        ZincDataSource(
+                                                            process: []);
+                                                  });
+
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text(
+                                                  appLocalizations.btn_delete,
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ))
+                                          ],
+                                        ));
+                              },
+                              child: Text(
+                                appLocalizations.btn_clear_all,
+                                style: TextStyle(color: Colors.white),
+                              )),
+                          ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll<Color>(
+                                          _addTable.isNotEmpty
+                                              ? Colors.blue
+                                              : Colors.grey.withOpacity(0.5))),
+                              onPressed: () async {
+                                if (_addTable.isNotEmpty) {
+                                  await exportDataToTxt();
+                                } else {
+                                  EasyLoading.showError(
+                                      appLocalizations.no_data);
+                                }
+                              },
+                              child: Text(
+                                appLocalizations.btn_export_data,
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                      zincDataSource != null
+                          ? Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.only(left: 10, right: 10),
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.1,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.white,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.grey,
+                                            offset: Offset(
+                                              1.0,
+                                              1.0,
+                                            ),
+                                            blurRadius: 5.0,
+                                            spreadRadius: 2.0,
+                                          ), //BoxShadow
+                                          BoxShadow(
+                                            color: Colors.white,
+                                            offset: Offset(0.0, 0.0),
+                                            blurRadius: 0.0,
+                                            spreadRadius: 0.0,
+                                          ),
+                                        ],
+                                        border: Border.all(
+                                            color: Colors.white, width: 1)),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(
+                                            "${appLocalizations.txt_total}: ${_addTable.length}"),
+                                        Text(
+                                            "${appLocalizations.txt_found}: ${_addTable.where((element) => element.status == "Found").toList().length}"),
+                                        Text(
+                                            "${appLocalizations.txt_not_found}: ${_addTable.where((element) => element.status != "Found").toList().length}"),
+                                        Row(
+                                          children: <Widget>[
+                                            Text("ASCII"),
+                                            Checkbox(
+                                              value: isASCII,
+                                              onChanged: (value) async {
+                                                await SDK_Function.setASCII(
+                                                    value!);
+                                                setState(() {
+                                                  isASCII = value;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : SizedBox.fromSize(),
+                      SizedBox(
+                        height: 15,
+                      ),
+                    ],
+                  )))
+          : Center(
+              child:
+                  Text(appLocalizations.txt_warning_connection_find_check_id)),
     );
   }
 

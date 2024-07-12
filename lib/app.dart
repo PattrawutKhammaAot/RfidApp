@@ -149,6 +149,8 @@ class _AppViewState extends State<AppView> {
       }
       setState(() {});
     });
+    SDK_Function.checkConnectionRfid();
+
     super.initState();
   }
 
