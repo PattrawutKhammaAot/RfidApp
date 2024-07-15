@@ -73,6 +73,9 @@
      "btn_export_template":"Export template Success !",
      "txt_serach_field":"Search Field",
      "txt_select":"Select",
-     "txt_menu_title":"Menu"
+     "txt_menu_title":"Menu",
+     "txt_Initializing":"Initializing RFID...",
+     "txt_Initialized":"RFID Initialized",
+     "txt_set_power_success":"Set Power Success : "
 
 }

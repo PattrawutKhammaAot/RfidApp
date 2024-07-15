@@ -251,6 +251,15 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                     result.success(e);
                 }
             break;
+            case "initScanner":
+                try{
+               initRfid(context);
+                result.success("Scanner initialized");
+                }catch(Exception e){
+                    Log.e(TAG, "Error in initScanner", e);
+                    result.success(e);
+                }
+            break;
 
             
             default:

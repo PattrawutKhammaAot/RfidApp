@@ -51,6 +51,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   void initState() {
+    SDK_Function.init();
     BlocProvider.of<ScanrfidCodeBloc>(context).add(
       GetRfidItemListEvent(),
     );

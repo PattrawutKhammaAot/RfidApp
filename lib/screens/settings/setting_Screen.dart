@@ -28,32 +28,34 @@ class _SettingScreenState extends State<SettingScreen> {
   );
   @override
   void initState() {
-    SDK_Function.getPower().then((value) {
-      if (value != 'Error' && value != null) {
-        currentPower = value;
-      } else {
-        AppData.getPower().then((value) {
-          if (value != null && value != '') {
-            currentPower = value;
-          }
-        });
-      }
+    SDK_Function.init().then((e) {
+      SDK_Function.getPower().then((value) {
+        if (value != 'Error' && value != null) {
+          currentPower = value;
+        } else {
+          AppData.getPower().then((value) {
+            if (value != null && value != '') {
+              currentPower = value;
+            }
+          });
+        }
 
-      setState(() {});
-    });
-    SDK_Function.getLengthASCII().then((value) {
-      currentLength = value;
-      setState(() {});
-    });
-    SDK_Function.checkScanner().then((value) {
-      isScanHeader = value;
-      setState(() {});
-    });
+        setState(() {});
+      });
+      SDK_Function.getLengthASCII().then((value) {
+        currentLength = value;
+        setState(() {});
+      });
+      SDK_Function.checkScanner().then((value) {
+        isScanHeader = value;
+        setState(() {});
+      });
 
-    _initPackageInfo().then((value) {
-      _packageInfo = value;
+      _initPackageInfo().then((value) {
+        _packageInfo = value;
+      });
+      AppData.setPopupInfo("page_settings");
     });
-    AppData.setPopupInfo("page_settings");
 
     super.initState();
   }
@@ -269,12 +271,14 @@ class _SettingScreenState extends State<SettingScreen> {
                         setState(() {});
                         if (result == "Error") {
                           EasyLoading.show(
-                              status: appLocalizations.txt_connection);
+                              status: appLocalizations.txt_Initializing);
+                          await SDK_Function.setPower(numbers[index]);
                           await Future.delayed(Duration(seconds: 3));
                           EasyLoading.showSuccess(
-                              appLocalizations.txt_connection_success);
+                              appLocalizations.txt_Initialized);
                         } else {
-                          EasyLoading.showSuccess(result);
+                          EasyLoading.showSuccess(
+                              "${appLocalizations.txt_set_power_success} ${numbers[index]}");
                         }
 
                         Navigator.pop(context);

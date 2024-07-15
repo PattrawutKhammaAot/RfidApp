@@ -1,4 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:rfid/main.dart';
 
 class SDK_Function {
   static const platform = MethodChannel("com.example/customChannel");
@@ -124,6 +126,24 @@ class SDK_Function {
     }
 
     return "Listening";
+  }
+
+  static Future<void> init() async {
+    try {
+      var result = await getPower();
+      if (result == 'Error' || result == -1) {
+        await platform.invokeMethod('initScanner');
+        EasyLoading.show(status: appLocalizations.txt_Initializing);
+        setPower(33);
+        await Future.delayed(Duration(seconds: 2));
+
+        EasyLoading.showSuccess(appLocalizations.txt_Initialized);
+      }
+    } catch (e) {
+      print('Error123: $e');
+    } finally {
+      EasyLoading.dismiss();
+    }
   }
 
   static Future<dynamic> closeScanner() async {

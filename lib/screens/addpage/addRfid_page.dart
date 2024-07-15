@@ -37,6 +37,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
 
   @override
   void initState() {
+    SDK_Function.init();
     SDK_Function.setASCII(true);
     focusNode.requestFocus();
     BlocProvider.of<TempMasterBloc>(context).add(

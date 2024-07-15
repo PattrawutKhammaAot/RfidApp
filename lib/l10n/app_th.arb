@@ -69,5 +69,8 @@
     "btn_export_template":"ส่งออก Template สำเร็จ",
     "txt_serach_field":"ช่อง ค้นหา",
     "txt_select":"เลือก",
-    "txt_menu_title":"เมนู"
+    "txt_menu_title":"เมนู",
+         "txt_Initializing":"กำลังเชื่อมต่อ RFID ...",
+     "txt_Initialized":"เชื่อมต่อ RFID สำเร็จ",
+      "txt_set_power_success":"ตั้งค่าพลังงานสำเร็จ : "
 }
