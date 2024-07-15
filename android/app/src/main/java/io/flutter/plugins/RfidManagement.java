@@ -46,6 +46,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
     public static final String DECODE_DATA_TAG = "com.example.app.DECODE_DATA";
     private ScanCallback callback;
     private Context context;
+    private FlutterPluginBinding bindingObject;
 
     boolean isASCII = true;
     int lengthOfASCII = 10;
@@ -53,6 +54,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
 
     @Override
     public void onAttachedToEngine(FlutterPluginBinding binding) {
+        bindingObject = binding;
         channel = new MethodChannel(binding.getBinaryMessenger(), "com.example/customChannel");
         channel.setMethodCallHandler(this);
         IntentFilter filter = new IntentFilter();
@@ -197,7 +199,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                 if (isSuccess == 0) {
                     result.success("Power set to " + power);
                 } else {
-                    initRfid(context);
+                    initRfid(bindingObject.getApplicationContext());
                     int isTrySuccess = mRfidManager.setOutputPower(power);
                     if(isTrySuccess == 0){
                         result.success("try Power set to " + power);
@@ -253,7 +255,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
             break;
             case "initScanner":
                 try{
-               initRfid(context);
+               initRfid(bindingObject.getApplicationContext());
                 result.success("Scanner initialized");
                 }catch(Exception e){
                     Log.e(TAG, "Error in initScanner", e);
