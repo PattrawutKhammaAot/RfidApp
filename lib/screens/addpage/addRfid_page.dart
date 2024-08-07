@@ -413,7 +413,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                             ),
                                             Text(
                                               itemList[index].rssi != null
-                                                  ? 'Rssi: -${itemList[index].rssi} dBm'
+                                                  ? 'Rssi: ${itemList[index].rssi} dBm'
                                                   : "Rssi: ${appLocalizations.txt_not_found}",
                                               style: TextStyle(
                                                   color: Colors.white),
@@ -565,7 +565,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
         sink.write('tag|Rssi|status|created|updated\n');
         for (var item in itemList) {
           sink.write(
-              '${item.rfid_tag}|-${item.rssi} dBm|${item.status}|${item.created_at}|${item.updated_at ?? "N/A"}\n');
+              '${item.rfid_tag}|${item.rssi} dBm|${item.status}|${item.created_at}|${item.updated_at ?? "N/A"}\n');
         }
 
         await sink.close();

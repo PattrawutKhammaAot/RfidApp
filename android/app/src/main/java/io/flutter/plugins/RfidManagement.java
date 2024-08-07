@@ -70,6 +70,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                 @Override
                 public void onStatus(boolean status) {
                     if (status) {
+                        mScanManager = new ScanManager();
                         Log.d(TAG, "initRfid()  success.");
                         mRfidManager = RFIDSDKManager.getInstance().getRfidManager();
                         callback = new ScanCallback();

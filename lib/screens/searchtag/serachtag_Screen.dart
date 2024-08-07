@@ -92,7 +92,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
         var sink = file.openWrite();
         sink.write('tag|Rssi|status\n');
         for (var item in itemModel) {
-          sink.write('${item.rfid_tag}|-${item.rssi} dBm|${item.status}\n');
+          sink.write('${item.rfid_tag}|${item.rssi} dBm|${item.status}\n');
         }
 
         await sink.close();
@@ -322,7 +322,7 @@ class _SearchTagsScreenState extends State<SearchTagsScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                              'Rssi : -${itemModel[index].rssi} dBm',
+                                              'Rssi : ${itemModel[index].rssi} dBm',
                                               style: TextStyle(
                                                   color: Colors.white)),
                                           Text(

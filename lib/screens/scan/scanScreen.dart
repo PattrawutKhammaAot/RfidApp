@@ -524,7 +524,7 @@ class _ScanScreenState extends State<ScanScreen> {
         var sink = file.openWrite();
         sink.write('tag|Rssi|status\n');
         for (var item in _addTable) {
-          sink.write('${item.rfid_tag}|-${item.rssi} dBm|${item.status}\n');
+          sink.write('${item.rfid_tag}|${item.rssi} dBm|${item.status}\n');
         }
 
         await sink.close();

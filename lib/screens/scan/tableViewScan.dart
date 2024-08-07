@@ -12,7 +12,7 @@ class ZincDataSource extends DataGridSource {
               cells: [
                 DataGridCell<String>(
                     columnName: 'rfid_tag', value: _item.rfid_tag),
-                DataGridCell(columnName: 'RSSI', value: "-${_item.rssi} dBm"),
+                DataGridCell(columnName: 'RSSI', value: "${_item.rssi} dBm"),
                 DataGridCell<String>(
                     columnName: 'status',
                     value: _item.status == "Found"
