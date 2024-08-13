@@ -32,8 +32,6 @@ class SDK_Function {
 
   static Future<String> setASCII(bool isACSII) async {
     try {
-      bool status = false;
-      status = !status;
       final result =
           await platform.invokeMethod('SetASCII', {"isASCII": isACSII});
       print(result);
@@ -192,6 +190,15 @@ class SDK_Function {
       } else {
         return false;
       }
+    } on PlatformException catch (e) {
+      print("Error from platform channel: ${e.code}, ${e.message}");
+      return null;
+    }
+  }
+
+  static Future<void> playSound() async {
+    try {
+      await platform.invokeMethod('usedSound');
     } on PlatformException catch (e) {
       print("Error from platform channel: ${e.code}, ${e.message}");
       return null;

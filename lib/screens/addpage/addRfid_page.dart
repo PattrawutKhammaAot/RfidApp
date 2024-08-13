@@ -54,7 +54,6 @@ class _AddRfidPageState extends State<AddRfidPage> {
 
   @override
   void dispose() async {
-    SDK_Function.setASCII(false);
     SDK_Function.scan(false);
     // TODO: implement dispose
     super.dispose();
@@ -143,7 +142,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                       hintText: appLocalizations.hint_add_rfid,
                       suffixIcon: IconButton(
                         icon: Icon(Icons.add_circle),
-                        onPressed: () {
+                        onPressed: () async {
                           if (searchController.text.isNotEmpty) {
                             if (itemList
                                 .where((qry) =>
@@ -307,7 +306,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                   future: SDK_Function.setTagScannedListener((epc, dbm) async {
                 if (itemList.isNotEmpty) {
                   if (itemList
-                      .where((qry) => qry.rfid_tag == epc.trim())
+                      .where((qry) => qry.rfid_tag!.trim() == epc.trim())
                       .isNotEmpty) {
                     context.read<TempMasterBloc>().add(UpdateTempMasterEvent(
                         TempMasterRfidData(
@@ -316,6 +315,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                             status: "Found",
                             rssi: dbm.trim(),
                             updated_at: DateTime.now())));
+                    await SDK_Function.playSound();
                   }
                 }
               }), builder: (context, snapshot) {
@@ -438,7 +438,7 @@ class _AddRfidPageState extends State<AddRfidPage> {
                                                         color: Colors.white))
                                                 : SizedBox.fromSize(),
                                             Text(
-                                                '${appLocalizations.txt_status} : ${itemList[index] == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found} ',
+                                                '${appLocalizations.txt_status} : ${itemList[index].status == "Found" ? appLocalizations.txt_found : appLocalizations.txt_not_found} ',
                                                 style: TextStyle(
                                                     color: Colors.white)),
                                           ],

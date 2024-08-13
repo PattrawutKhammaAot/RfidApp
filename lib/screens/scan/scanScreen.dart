@@ -75,7 +75,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   void dispose() {
-    SDK_Function.setASCII(false);
     SDK_Function.scan(false);
     // TODO: implement dispose
     super.dispose();
@@ -148,7 +147,9 @@ class _ScanScreenState extends State<ScanScreen> {
                       ? FutureBuilder(
                           future:
                               SDK_Function.setTagScannedListener((epc, dbm) {
-                            onEventScan(epc.trim(), dbm);
+                            onEventScan(epc.trim(), dbm).then((value) async {
+                              await SDK_Function.playSound();
+                            });
                             // _addTable.add(tempRfidItemList(
                             //   rfid_tag: epc,
                             //   rssi: dbm,

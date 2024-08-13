@@ -149,7 +149,7 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
         tagData.put("epc", epc.trim());
         tagData.put("rssi", rssi);
         channel.invokeMethod("onTagScanned", tagData);
-        soundTool.playBeep();
+        
     }
 
     private void sendConnection(boolean status) {
@@ -263,7 +263,11 @@ public class RfidManagement implements FlutterPlugin, MethodCallHandler {
                     result.success(e);
                 }
             break;
-
+            case "usedSound":
+                if(soundTool != null){
+                    soundTool.playBeep();
+                }
+            break;
             
             default:
                 result.notImplemented();
