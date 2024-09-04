@@ -4,15 +4,14 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rfid/blocs/master/master_rfid_bloc.dart';
-import 'package:rfid/blocs/network/bloc/network_bloc.dart';
+
 import 'package:rfid/blocs/scanrfid/scanrfid_code_bloc.dart';
 import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
 import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
 import 'package:rfid/config/appData.dart';
 import 'package:rfid/main.dart';
-import 'package:rfid/nativefunction/nativeFunction.dart';
+
 import 'package:rfid/screens/homepage/homepageControl.dart';
-import 'package:rfid/screens/scan/scanScreen.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 

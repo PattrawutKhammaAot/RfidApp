@@ -15,7 +15,7 @@ import 'package:rfid/blocs/search_rfid/search_rfid_bloc.dart';
 import 'package:rfid/config/appData.dart';
 import 'package:rfid/database/database.dart';
 import 'package:rfid/main.dart';
-import 'package:rfid/nativefunction/nativeFunction.dart';
+import 'package:rfid/sdk_urovo/sdk_function.dart';
 
 class SearchTagsScreen extends StatefulWidget {
   const SearchTagsScreen({super.key});

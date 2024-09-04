@@ -15,7 +15,7 @@ import 'package:rfid/blocs/master/master_rfid_bloc.dart';
 import 'package:rfid/blocs/tempMaster/temp_master_bloc.dart';
 import 'package:rfid/config/appData.dart';
 import 'package:rfid/main.dart';
-import 'package:rfid/nativefunction/nativeFunction.dart';
+import 'package:rfid/sdk_urovo/sdk_function.dart';
 
 import '../../blocs/scanrfid/models/importRfidCodeModel.dart';
 import '../../database/database.dart';

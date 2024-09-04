@@ -5,7 +5,7 @@ import 'package:rfid/config/appData.dart';
 import 'package:rfid/main.dart';
 
 import '../../app.dart';
-import '../../nativefunction/nativeFunction.dart';
+import '../../sdk_urovo/sdk_function.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});

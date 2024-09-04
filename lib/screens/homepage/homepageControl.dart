@@ -12,7 +12,7 @@ import 'package:rfid/config/appConstants.dart';
 import 'package:rfid/config/appData.dart';
 import 'package:rfid/database/database.dart';
 import 'package:rfid/main.dart';
-import 'package:rfid/nativefunction/nativeFunction.dart';
+import 'package:rfid/sdk_urovo/sdk_function.dart';
 import 'package:rfid/screens/addpage/addRfid_page.dart';
 import 'package:rfid/screens/import_test/import_Test_Screen.dart';
 import 'package:rfid/screens/reportpage/reportScreen.dart';

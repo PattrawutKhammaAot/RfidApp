@@ -25,7 +25,7 @@ import 'package:top_snackbar_flutter/safe_area_values.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../config/appData.dart';
-import '../../nativefunction/nativeFunction.dart';
+import '../../sdk_urovo/sdk_function.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key, this.onChange, this.receiveValue});
