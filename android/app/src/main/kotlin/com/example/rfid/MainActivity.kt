@@ -7,7 +7,7 @@
     
     class MainActivity: FlutterActivity() {
         override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-           //flutterEngine.plugins.add(RfidManagement())
+           flutterEngine.plugins.add(RfidManagement())
             GeneratedPluginRegistrant.registerWith(flutterEngine);
         }
     }
