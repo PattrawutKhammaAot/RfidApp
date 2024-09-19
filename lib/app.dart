@@ -15,6 +15,8 @@ import 'package:rfid/screens/homepage/homepageControl.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'utils/navigatorService.dart';
+
 enum FetchStatus {
   fetching,
   sending,
@@ -140,6 +142,7 @@ class AppView extends StatefulWidget {
 class _AppViewState extends State<AppView> {
   final easyLoading = EasyLoading.init();
   Locale _locale = Locale('en');
+  final NavigationService _navigationService = NavigationService();
   @override
   void initState() {
     AppData.getLocale().then((e) {
@@ -161,6 +164,7 @@ class _AppViewState extends State<AppView> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: true,
+      navigatorKey: _navigationService.navigatorKey,
       builder: (context, child) {
         appLocalizations = AppLocalizations.of(context)!;
         child = easyLoading(context, child);

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:flutter/material.dart';
@@ -539,5 +540,15 @@ class _ScanScreenState extends State<ScanScreen> {
     } catch (e, s) {
       print("$e$s");
     }
+  }
+
+  void testButton() async {
+    _addTable.add(tempRfidItemList(
+        rfid_tag: "${Random().nextInt(10000)}",
+        status: "Not Found",
+        rssi: "10"));
+    setState(() {
+      zincDataSource = ZincDataSource(process: _addTable);
+    });
   }
 }

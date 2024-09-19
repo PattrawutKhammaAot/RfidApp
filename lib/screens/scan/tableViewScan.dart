@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rfid/main.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
+import '../../utils/navigatorService.dart';
 
 class ZincDataSource extends DataGridSource {
   ZincDataSource({List<tempRfidItemList>? process}) {
@@ -119,15 +122,33 @@ class ZincDataSource extends DataGridSource {
             return Colors.white;
           }
 
-          return Container(
-            color: getColor(),
-            alignment: (dataGridCell.columnName == 'rfid_tag' ||
-                    dataGridCell.columnName == 'status')
-                ? Alignment.center
-                : Alignment.center,
-            child: Text(
-              dataGridCell.value.toString(),
-              style: TextStyle(color: getTextColor()),
+          return GestureDetector(
+            onLongPress: () {
+              if (dataGridCell.columnName == 'rfid_tag') {
+                Clipboard.setData(
+                    ClipboardData(text: dataGridCell.value.toString()));
+                ScaffoldMessenger.of(
+                        NavigationService().navigatorKey.currentState!.context)
+                    .clearSnackBars();
+                ScaffoldMessenger.of(
+                        NavigationService().navigatorKey.currentState!.context)
+                    .showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'Copied to clipboard ${dataGridCell.value.toString()}')),
+                );
+              }
+            },
+            child: Container(
+              color: getColor(),
+              alignment: (dataGridCell.columnName == 'rfid_tag' ||
+                      dataGridCell.columnName == 'status')
+                  ? Alignment.center
+                  : Alignment.center,
+              child: Text(
+                dataGridCell.value.toString(),
+                style: TextStyle(color: getTextColor()),
+              ),
             ),
           );
         },

@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 late AppDb appDb;
 late AppLocalizations appLocalizations;
+
 void main() {
   appDb = AppDb();
   runApp(const App());
