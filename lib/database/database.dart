@@ -83,7 +83,7 @@ class AppDb extends _$AppDb {
         await delete(tagRunningRfid).go();
         for (var item in model) {
           await into(masterRfid).insert(Master_rfidCompanion(
-            rfid_tag: Value(item.rfidTag),
+            rfid_tag: Value(item.rfidTag?.toUpperCase()),
             status: Value(null),
             created_at: Value(DateTime.now()),
             updated_at: Value(DateTime.now()),

@@ -113,8 +113,8 @@ class SDK_Function {
           String epc = call.arguments['epc'];
           String rssi = call.arguments['rssi'];
 
-          onTagScanned(epc, rssi);
-          return epc;
+          onTagScanned(epc.toUpperCase(), rssi);
+          return epc.toUpperCase();
         }
         return null;
       });

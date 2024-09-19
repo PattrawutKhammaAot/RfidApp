@@ -148,7 +148,8 @@ class _ScanScreenState extends State<ScanScreen> {
                       ? FutureBuilder(
                           future:
                               SDK_Function.setTagScannedListener((epc, dbm) {
-                            onEventScan(epc.trim(), dbm).then((value) async {
+                            onEventScan(epc.toUpperCase().trim(), dbm)
+                                .then((value) async {
                               await SDK_Function.playSound();
                             });
                             // _addTable.add(tempRfidItemList(
@@ -390,6 +391,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future onEventScan(String _controller, String rssi) async {
+    _controller = _controller.toUpperCase().trim();
     if (_controller.isNotEmpty) {
       var result = itemList
           .where((element) =>
